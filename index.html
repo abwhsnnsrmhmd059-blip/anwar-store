@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محلات أنور أبوحسن | مجمع الخدمات الشامل</title>
+    <!-- Tailwind CSS للتصميم العصري -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jspdf لتوليد تقارير الـ PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #f4f7f6; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .banner-slide { display: none; }
+        .banner-slide.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 pb-20">
+
+    <!-- نافذة تسجيل دخول الزبون -->
+    <div id="loginModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl text-center space-y-4 border border-emerald-500/20">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl font-black shadow-inner">
+                <i class="fa-solid fa-store"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-slate-800">مرحباً بكم في</h2>
+                <h3 class="text-xl font-bold text-emerald-600">محلات أنور أبوحسن</h3>
+                <p class="text-xs text-slate-500 mt-1">يرجى تسجيل دخولك المباشر للبدء</p>
+            </div>
+            <form id="loginForm" onsubmit="handleCustomerLogin(event)" class="space-y-3 text-right">
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1">الاسم الثلاثي</label>
+                    <input type="text" id="custName" required placeholder="أدخل اسمك الثلاثي" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-slate-50">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1">رقم الهاتف</label>
+                    <input type="tel" id="custPhone" required placeholder="أدخل رقم هاتفك" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-slate-50">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition">
+                    دخول للمتجر <i class="fa-solid fa-arrow-left mr-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- الهيدر والشعار ورقم المحل -->
+    <header class="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white shadow-xl sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- جهة اليمين: اسم المحل والأرقام -->
+            <div class="flex items-center gap-3">
+                <div onclick="triggerAdminSecret()" class="cursor-pointer select-none">
+                    <h1 class="text-lg md:text-xl font-black tracking-wide text-yellow-400">محلات أنور أبوحسن</h1>
+                    <div class="text-[10px] md:text-xs text-emerald-200 flex items-center gap-2">
+                        <span><i class="fa-solid fa-phone text-yellow-400"></i> 771826820</span>
+                        <span>|</span>
+                        <span>770210804</span>
+                    </div>
+                </div>
+            </div>
+            <!-- جهة اليسار: الشعار وحساب الزبون -->
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden md:block">
+                    <span id="displayCustName" class="text-xs font-bold block text-white"></span>
+                    <span class="text-[10px] text-emerald-300">زبون معتمد</span>
+                </div>
+                <!-- الشعار الجميل المبتكر -->
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg border-2 border-yellow-400 p-1">
+                    <div class="w-full h-full bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-inner">
+                        <i class="fa-solid fa-shield-halved text-yellow-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- شريط إشعارات المدير المباشر -->
+    <div id="globalAnnouncement" class="hidden bg-amber-500 text-slate-900 px-4 py-2 font-bold text-xs flex items-center justify-between shadow-inner">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-bell animate-bounce text-sm"></i>
+            <span id="announcementText">إشعار عام من الإدارة...</span>
+        </div>
+        <button onclick="document.getElementById('globalAnnouncement').classList.add('hidden')" class="text-slate-900 opacity-70 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- المحتوى الرئيسي للموقع -->
+    <main class="container mx-auto px-4 py-4 max-w-4xl space-y-6">
+
+        <!-- الشاشة الرئيسية -->
+        <div id="pageHome" class="page-section space-y-6">
+            <!-- شاشات العرض الإعلانية الرئيسية -->
+            <div class="relative w-full h-44 md:h-56 bg-slate-800 rounded-3xl overflow-hidden shadow-xl border-2 border-emerald-500/20">
+                <div id="homeBannerContainer" class="w-full h-full">
+                    <div class="banner-slide active w-full h-full bg-gradient-to-r from-emerald-600 to-teal-700 flex items-center justify-center text-white p-6 text-center">
+                        <div>
+                            <span class="bg-yellow-400 text-slate-900 text-[10px] font-black px-2 py-1 rounded-full uppercase mb-2 inline-block">أهلاً بكم</span>
+                            <h2 class="text-2xl font-black">أفضل الأسعار والخدمات المباشرة</h2>
+                            <p class="text-xs text-emerald-100 mt-1">المواد الغذائية، المشتقات النفطية، والخدمات المالية في مكان واحد</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الأزرار الرئيسية الأربعة -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button onclick="showPage('pageFood')" class="bg-white p-5 rounded-3xl shadow-md border border-slate-100 hover:border-emerald-500 transition-all text-center space-y-2 group hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-basket-shopping"></i>
+                    </div>
+                    <span class="font-bold text-sm block text-slate-800">المواد الغذائية</span>
+                </button>
+
+                <button onclick="showPage('pageFuel')" class="bg-white p-5 rounded-3xl shadow-md border border-slate-100 hover:border-amber-500 transition-all text-center space-y-2 group hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl group-hover:bg-amber-500 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-gas-pump"></i>
+                    </div>
+                    <span class="font-bold text-sm block text-slate-800">المشتقات النفطية</span>
+                </button>
+
+                <button onclick="showPage('pageRemittance')" class="bg-white p-5 rounded-3xl shadow-md border border-slate-100 hover:border-blue-500 transition-all text-center space-y-2 group hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl group-hover:bg-blue-600 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    </div>
+                    <span class="font-bold text-sm block text-slate-800">الحوالات النقدية</span>
+                </button>
+
+                <button onclick="showPage('pageMore')" class="bg-white p-5 rounded-3xl shadow-md border border-slate-100 hover:border-purple-500 transition-all text-center space-y-2 group hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto text-2xl group-hover:bg-purple-600 group-hover:text-white transition-all">
+                        <i class="fa-solid fa-border-all"></i>
+                    </div>
+                    <span class="font-bold text-sm block text-slate-800">المزيد</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- قسم المواد الغذائية -->
+        <div id="pageFood" class="page-section hidden space-y-4">
+            <div id="foodBannerContainer" class="w-full h-36 bg-emerald-800 rounded-3xl overflow-hidden shadow-lg flex items-center justify-center text-white font-bold">
+                <span class="text-lg"><i class="fa-solid fa-utensils ml-2"></i> قسم المواد الغذائية والتموينات</span>
+            </div>
+            <div id="gridFood" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- المنتجات المضافة تظهر هنا ديناميكياً -->
+            </div>
+        </div>
+
+        <!-- قسم المشتقات النفطية والزيوت -->
+        <div id="pageFuel" class="page-section hidden space-y-6">
+            <div id="fuelBannerContainer" class="w-full h-36 bg-amber-700 rounded-3xl overflow-hidden shadow-lg flex items-center justify-center text-white font-bold">
+                <span class="text-lg"><i class="fa-solid fa-fire ml-2"></i> قسم المشتقات النفطية والزيوت</span>
+            </div>
+
+            <h3 class="font-black text-slate-800 text-md flex items-center gap-2"><i class="fa-solid fa-droplet text-amber-500"></i> المشتقات الأساسية</h3>
+            <div id="gridFuelMain" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- البترول والديزل والغاز تظهر هنا -->
+            </div>
+
+            <h3 class="font-black text-slate-800 text-md flex items-center gap-2 mt-4"><i class="fa-solid fa-oil-can text-amber-600"></i> قسم الزيوت والمحركات</h3>
+            <div id="gridOils" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- منتجات الزيوت المضافة تظهر هنا -->
+            </div>
+        </div>
+
+        <!-- قسم الحوالات النقدية -->
+        <div id="pageRemittance" class="page-section hidden space-y-4">
+            <div id="remittanceBannerContainer" class="w-full h-28 bg-blue-900 rounded-3xl overflow-hidden shadow-lg flex items-center justify-center text-white font-bold">
+                <span class="text-lg"><i class="fa-solid fa-wallet ml-2"></i> خدمة استلام وتسليم الحوالات المباشرة</span>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-blue-100 space-y-4">
+                <h3 class="text-lg font-black text-slate-800 text-center border-b pb-3">طلب استلام حوالة</h3>
+                <form id="remittanceForm" onsubmit="submitRemittance(event)" class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 block mb-1">1. رقم الحوالة</label>
+                        <input type="number" id="remitNo" required placeholder="أدخل رقم الحوالة" class="w-full p-3 rounded-xl border border-slate-200 outline-none text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-700 block mb-1">2. الاسم الكامل للمستلم</label>
+                        <input type="text" id="remitName" required placeholder="أدخل الاسم الرباعي" class="w-full p-3 rounded-xl border border-slate-200 outline-none text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">3. صوّر وجه البطاقة (أمامي)</label>
+                            <input type="file" id="remitCardFront" accept="image/*" class="w-full text-xs p-2 border rounded-xl bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-700 block mb-1">4. صوّر ظهر البطاقة (خلفي)</label>
+                            <input type="file" id="remitCardBack" accept="image/*" class="w-full text-xs p-2 border rounded-xl bg-slate-50">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-brands fa-whatsapp text-xl"></i>طلب إستلام الحوالة (تحويل للواتساب)
+                    </button>
+                    <button type="button" onclick="submitRemittanceSMS()" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-comment-sms text-base"></i> إرسال عبر رسالة نصية SMS (بدون صور)
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- قسم المزيد -->
+        <div id="pageMore" class="page-section hidden space-y-6">
+            <div id="moreBannerContainer" class="w-full h-28 bg-purple-900 rounded-3xl overflow-hidden shadow-lg flex items-center justify-center text-white font-bold">
+                <span class="text-lg"><i class="fa-solid fa-cubes ml-2"></i> أقسام الخدمات الإضافية</span>
+            </div>
+
+            <h3 class="font-black text-slate-800 text-md flex items-center gap-2"><i class="fa-solid fa-wheat-awn text-emerald-600"></i> قسم المبيدات الزراعية</h3>
+            <div id="gridPesticides" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+
+            <h3 class="font-black text-slate-800 text-md flex items-center gap-2"><i class="fa-solid fa-gem text-purple-600"></i> قسم الاكسسوارات</h3>
+            <div id="gridAccessories" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+
+            <h3 class="font-black text-slate-800 text-md flex items-center gap-2"><i class="fa-solid fa-hand-holding-heart text-blue-600"></i> قسم خدمات أخرى</h3>
+            <div id="gridOtherServices" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- ================= غُرفة المدير (ADMIN PANEL) ================= -->
+        <div id="pageAdmin" class="page-section hidden space-y-6">
+            <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl flex justify-between items-center border border-yellow-400/30">
+                <div>
+                    <h2 class="text-xl font-black text-yellow-400"><i class="fa-solid fa-user-shield ml-2"></i> غرفة التحكم والبرمجة - محلات أنور أبوحسن</h2>
+                    <p class="text-xs text-slate-400 mt-1">التحكم الكامل بالمتجر والحوالات والإعدادات</p>
+                </div>
+                <button onclick="showPage('pageHome')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-xl font-bold">خروج</button>
+            </div>
+
+            <!-- تبويبات لوحة التحكم 5 أقسام -->
+            <div class="flex overflow-x-auto gap-2 pb-2 hide-scrollbar">
+                <button onclick="switchAdminTab('tabAddGoods')" class="admin-tab-btn bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-plus-circle ml-1"></i> إضافة سلع</button>
+                <button onclick="switchAdminTab('tabRemittanceReply')" class="admin-tab-btn bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-reply ml-1"></i> الرد على الحوالات</button>
+                <button onclick="switchAdminTab('tabSetBanners')" class="admin-tab-btn bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-images ml-1"></i> تعين الإعلانات</button>
+                <button onclick="switchAdminTab('tabAccounts')" class="admin-tab-btn bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar ml-1"></i> الحسابات التقارير</button>
+                <button onclick="switchAdminTab('tabSettings')" class="admin-tab-btn bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-gears ml-1"></i> الإعدادات</button>
+            </div>
+
+            <!-- 1. قسم إضافة سلع -->
+            <div id="tabAddGoods" class="admin-tab bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">اختر القسم لإضافة السلعة:</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <button onclick="openAddItemModal('food')" class="p-4 bg-emerald-50 text-emerald-800 font-bold rounded-2xl text-xs hover:bg-emerald-100 border border-emerald-200 text-right"><i class="fa-solid fa-utensils block text-lg mb-1"></i> إضافة مواد غذائية</button>
+                    <button onclick="openAddItemModal('fuel')" class="p-4 bg-amber-50 text-amber-800 font-bold rounded-2xl text-xs hover:bg-amber-100 border border-amber-200 text-right"><i class="fa-solid fa-gas-pump block text-lg mb-1"></i> إضافة مشتقات نفطية</button>
+                    <button onclick="openAddItemModal('oils')" class="p-4 bg-orange-50 text-orange-800 font-bold rounded-2xl text-xs hover:bg-orange-100 border border-orange-200 text-right"><i class="fa-solid fa-oil-can block text-lg mb-1"></i> إضافة زيوت</button>
+                    <button onclick="openAddItemModal('pesticides')" class="p-4 bg-teal-50 text-teal-800 font-bold rounded-2xl text-xs hover:bg-teal-100 border border-teal-200 text-right"><i class="fa-solid fa-wheat-awn block text-lg mb-1"></i> إضافة مبيدات زراعية</button>
+                    <button onclick="openAddItemModal('accessories')" class="p-4 bg-purple-50 text-purple-800 font-bold rounded-2xl text-xs hover:bg-purple-100 border border-purple-200 text-right"><i class="fa-solid fa-gem block text-lg mb-1"></i> إضافة إكسسوارات</button>
+                    <button onclick="openAddItemModal('services')" class="p-4 bg-blue-50 text-blue-800 font-bold rounded-2xl text-xs hover:bg-blue-100 border border-blue-200 text-right"><i class="fa-solid fa-hand-holding-heart block text-lg mb-1"></i> إضافة خدمات أخرى</button>
+                </div>
+            </div>
+
+            <!-- 2. قسم الرد على الحوالات -->
+            <div id="tabRemittanceReply" class="admin-tab hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">طلبات الحوالات النقدية الواردة:</h3>
+                <div id="adminRemittanceList" class="space-y-3">
+                    <!-- تظهر الحوالات هنا مع حالة خضراء للجديدة وحمراء للمُجاب عليها -->
+                </div>
+            </div>
+
+            <!-- 3. قسم تعين الإعلانات -->
+            <div id="tabSetBanners" class="admin-tab hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">تعيين صور شاشات العرض والإعلانات:</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2">
+                        <label class="text-xs font-bold block">إعلانات الصفحة الرئيسية</label>
+                        <input type="file" onchange="uploadBanner(event, 'home')" accept="image/*" class="text-xs w-full">
+                    </div>
+                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2">
+                        <label class="text-xs font-bold block">إعلانات قسم المواد الغذائية</label>
+                        <input type="file" onchange="uploadBanner(event, 'food')" accept="image/*" class="text-xs w-full">
+                    </div>
+                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2">
+                        <label class="text-xs font-bold block">إعلانات قسم المشتقات النفطية</label>
+                        <input type="file" onchange="uploadBanner(event, 'fuel')" accept="image/*" class="text-xs w-full">
+                    </div>
+                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2">
+                        <label class="text-xs font-bold block">إعلانات قسم الحوالات النقدية</label>
+                        <input type="file" onchange="uploadBanner(event, 'remittance')" accept="image/*" class="text-xs w-full">
+                    </div>
+                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2 md:col-span-2">
+                        <label class="text-xs font-bold block">إعلانات قسم المزيد</label>
+                        <input type="file" onchange="uploadBanner(event, 'more')" accept="image/*" class="text-xs w-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. قسم الحسابات وتوليد PDF -->
+            <div id="tabAccounts" class="admin-tab hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">سجلات الحسابات وتصدير PDF:</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-5 border rounded-2xl bg-emerald-50 space-y-3">
+                        <h4 class="font-bold text-xs text-emerald-900">كشف مبيعات السلع والمنتجات</h4>
+                        <button onclick="downloadSalesPDF()" class="w-full bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-sm"></i> تنزيل كشف المبيعات (PDF)</button>
+                    </div>
+                    <div class="p-5 border rounded-2xl bg-blue-50 space-y-3">
+                        <h4 class="font-bold text-xs text-blue-900">كشف الحوالات المالية المسددة</h4>
+                        <button onclick="downloadRemittancePDF()" class="w-full bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-sm"></i> تنزيل كشف الحوالات (PDF)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. قسم الإعدادات والصلاحيات -->
+            <div id="tabSettings" class="admin-tab hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
+                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">صلاحيات المدير وإدارة المشتركين:</h3>
+                
+                <div class="space-y-3">
+                    <div class="border p-4 rounded-2xl space-y-2 bg-slate-50">
+                        <label class="text-xs font-bold block">إرسال إشعار عاجل لجميع زبائن الموقع</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="adminNoticeInput" placeholder="اكتب الرسالة الإشعارية..." class="w-full p-2.5 border rounded-xl text-xs outline-none">
+                            <button onclick="postGlobalNotice()" class="bg-amber-500 text-slate-900 font-bold px-4 rounded-xl text-xs">نشر</button>
+                        </div>
+                    </div>
+
+                    <div class="border p-4 rounded-2xl space-y-2">
+                        <h4 class="text-xs font-bold">إحصائيات المشتركين والزبائن</h4>
+                        <p class="text-xs text-slate-600">إجمالي الزبائن المسجلين: <span id="totalCustomersCount" class="font-black text-emerald-600">1</span> زبون</p>
+                        <div id="customersList" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- شريط العودة المباشر للرئيسية في الأسفل -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 py-2.5 px-4 z-40">
+        <div class="container mx-auto max-w-md flex justify-center">
+            <button onclick="showPage('pageHome')" class="bg-emerald-700 hover:bg-emerald-800 text-white px-8 py-2 rounded-2xl shadow-lg font-bold text-xs flex items-center gap-2 transition-all active:scale-95">
+                <i class="fa-solid fa-house text-sm"></i> العودة للشاشة الرئيسية
+            </button>
+        </div>
+    </nav>
+
+    <!-- نافذة إضافة منتج (تُفتح من غرفة المدير) -->
+    <div id="addItemModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <h3 class="font-black text-slate-800 text-sm border-b pb-2" id="addItemModalTitle">إضافة منتج جديد</h3>
+            <form onsubmit="handleSaveItem(event)" class="space-y-3">
+                <input type="hidden" id="itemCategoryTarget">
+                <div>
+                    <label class="text-xs font-bold block mb-1">صورة المنتج</label>
+                    <input type="file" id="itemImageInput" accept="image/*" class="w-full text-xs p-2 border rounded-xl">
+                </div>
+                <div>
+                    <label class="text-xs font-bold block mb-1">اسم السلعة / المنتج</label>
+                    <input type="text" id="itemNameInput" required placeholder="مثال: أرز شاهين 10 كجم" class="w-full p-2.5 border rounded-xl text-xs outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold block mb-1">سعر السلعة</label>
+                    <input type="text" id="itemPriceInput" required placeholder="مثال: 12,000 ريال يمني" class="w-full p-2.5 border rounded-xl text-xs outline-none">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">حفظ وإظهار للزبائن</button>
+                    <button type="button" onclick="closeAddItemModal()" class="w-1/2 bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إجابة المدير على الحوالة -->
+    <div id="replyRemitModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <h3 class="font-black text-slate-800 text-sm border-b pb-2">الرد على طلب الحوالة وتسديدها</h3>
+            <form onsubmit="handleSendRemitReply(event)" class="space-y-3">
+                <input type="hidden" id="targetRemitId">
+                <div>
+                    <label class="text-xs font-bold block mb-1">المبلغ المسحوب</label>
+                    <input type="number" id="remitAmountInput" required placeholder="أدخل المبلغ" class="w-full p-2.5 border rounded-xl text-xs outline-none">
+                </div>
+                <div>
+                    <label class="text-xs font-bold block mb-1">نوع العملة</label>
+                    <select id="remitCurrencyInput" class="w-full p-2.5 border rounded-xl text-xs outline-none bg-white">
+                        <option value="ريال يمني">ريال يمني</option>
+                        <option value="ريال سعودي">ريال سعودي</option>
+                        <option value="دولار أمريكي">دولار أمريكي</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">إرسال الإشعار للزبون</button>
+                    <button type="button" onclick="document.getElementById('replyRemitModal').classList.add('hidden')" class="w-1/2 bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة الإشعار المستلم للزبون -->
+    <div id="receiptModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center space-y-4 shadow-2xl border-2 border-emerald-500">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">
+                <i class="fa-solid fa-shield-halved text-yellow-500"></i>
+            </div>
+            <h3 class="text-sm font-bold text-slate-500">محلات أنور أبوحسن</h3>
+            <div class="bg-slate-50 p-4 rounded-2xl text-right text-xs space-y-2 border">
+                <p><strong>اسم المستلم:</strong> <span id="recName"></span></p>
+                <p><strong>رقم الحوالة:</strong> <span id="recNo"></span></p>
+                <p><strong>المبلغ المستلم:</strong> <span id="recAmount" class="text-emerald-600 font-black text-sm"></span> <span id="recCurr"></span></p>
+            </div>
+            <p class="text-xs font-bold text-emerald-700">أنور أبوحسن للحوالات المالية - نعتز بثقتكم فينا</p>
+            <button onclick="document.getElementById('receiptModal').classList.add('hidden')" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">إغلاق الإشعار</button>
+        </div>
+    </div>
+
+    <!-- JavaScript الأساسي للتفاعل والإدارة -->
+    <script>
+        // قواعد البيانات المحلية والتخزين
+        let storeData = JSON.parse(localStorage.getItem('anwarStoreData')) || {
+            items: [],
+            remittances: [],
+            sales: [],
+            customers: [],
+            notice: ''
+        };
+
+        let currentCustomer = JSON.parse(localStorage.getItem('currentCust')) || null;
+        let adminClickCounter = 0;
+
+        window.onload = function() {
+            if(!currentCustomer) {
+                document.getElementById('loginModal').classList.remove('hidden');
+            } else {
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('displayCustName').innerText = currentCustomer.name;
+            }
+            renderAllProducts();
+            renderRemittancesAdmin();
+            checkGlobalNotice();
+        };
+
+        // تسجيل دخول الزبون
+        function handleCustomerLogin(e) {
+            e.preventDefault();
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            currentCustomer = { name, phone };
+            localStorage.setItem('currentCust', JSON.stringify(currentCustomer));
+
+            // حفظ في قائمة المشتركين للمدير
+            if(!storeData.customers.find(c => c.phone === phone)) {
+                storeData.customers.push(currentCustomer);
+                saveStoreData();
+            }
+
+            document.getElementById('displayCustName').innerText = name;
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        // التبديل بين الصفحات
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // دخول المدير السري عند الضغط المتكرر على ترويسة الموقع
+        function triggerAdminSecret() {
+            adminClickCounter++;
+            if(adminClickCounter >= 4) {
+                adminClickCounter = 0;
+                const pass = prompt("أدخل رمز الدخول لغرفة المدير صاحب المحل:");
+                if(pass === "1234") { // الرمز السري المفتراضي
+                    showPage('pageAdmin');
+                } else if (pass !== null) {
+                    alert("رمز الدخول غير صحيح!");
+                }
+            }
+        }
+
+        // تحكم التبويبات داخل لوحة المدير
+        function switchAdminTab(tabId) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+        }
+
+        // فتح نافذة إضافة السلع
+        function openAddItemModal(category) {
+            document.getElementById('itemCategoryTarget').value = category;
+            document.getElementById('addItemModal').classList.remove('hidden');
+        }
+
+        function closeAddItemModal() {
+            document.getElementById('addItemModal').classList.add('hidden');
+        }
+
+        // حفظ منتج جديد وإظهاره تلقائياً
+        function handleSaveItem(e) {
+            e.preventDefault();
+            const cat = document.getElementById('itemCategoryTarget').value;
+            const name = document.getElementById('itemNameInput').value;
+            const price = document.getElementById('itemPriceInput').value;
+            const fileInput = document.getElementById('itemImageInput');
+
+            let imgUrl = 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'; // صورة افتراضية جميلة
+
+            const newItem = { id: Date.now(), cat, name, price, img: imgUrl };
+
+            if(fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    newItem.img = evt.target.result;
+                    storeData.items.push(newItem);
+                    saveStoreData();
+                    renderAllProducts();
+                    closeAddItemModal();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                storeData.items.push(newItem);
+                saveStoreData();
+                renderAllProducts();
+                closeAddItemModal();
+            }
+        }
+
+        // عرض المنتجات بالمربعات المصممة مسبقاً (لا تظهر المربعات الفارغة)
+        function renderAllProducts() {
+            const containers = {
+                food: document.getElementById('gridFood'),
+                fuel: document.getElementById('gridFuelMain'),
+                oils: document.getElementById('gridOils'),
+                pesticides: document.getElementById('gridPesticides'),
+                accessories: document.getElementById('gridAccessories'),
+                services: document.getElementById('gridOtherServices')
+            };
+
+            Object.keys(containers).forEach(key => { if(containers[key]) containers[key].innerHTML = ''; });
+
+            storeData.items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-3xl shadow-sm border border-slate-100 text-center space-y-2 flex flex-col justify-between";
+                card.innerHTML = `
+                    <img src="${item.img}" class="w-20 h-20 object-cover mx-auto rounded-2xl shadow-inner">
+                    <h4 class="font-bold text-xs text-slate-800 line-clamp-2">${item.name}</h4>
+                    <span class="text-xs font-black text-emerald-600 bg-emerald-50 py-1 px-2 rounded-lg inline-block">${item.price}</span>
+                    <button onclick="orderProduct('${item.name}', '${item.price}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition">طلب مباشر</button>
+                `;
+                if(containers[item.cat]) containers[item.cat].appendChild(card);
+            });
+        }
+
+        function orderProduct(name, price) {
+            if(!currentCustomer) return alert('يرجى تسجيل الدخول أولاً');
+            storeData.sales.push({ customer: currentCustomer.name, item: name, price, date: new Date().toLocaleDateString('ar-YE') });
+            saveStoreData();
+            alert(`تم تسجيل طلبك لمنتج (${name}). يرجى زيارة المحل للاستلام.`);
+        }
+
+        // إرسال الحوالة (واتساب)
+        function submitRemittance(e) {
+            e.preventDefault();
+            const remitNo = document.getElementById('remitNo').value;
+            const name = document.getElementById('remitName').value;
+
+            // حفظ الحوالة للمدير
+            const newRemit = { id: Date.now(), remitNo, name, answered: false, amount: 0, currency: '' };
+            storeData.remittances.push(newRemit);
+            saveStoreData();
+
+            const msg = `📥 *طلب استلام حوالة - محلات أنور أبوحسن*%0A` +
+                        `👤 *اسم المستلم:* ${encodeURIComponent(name)}%0A` +
+                        `🔢 *رقم الحوالة:* ${encodeURIComponent(remitNo)}%0A%0A` +
+                        `📌 *ملاحظة:* تم إرفاق صوّر البطاقة الشخصية (أمامي وخلفي) مع هذه الرسالة.`;
+
+            window.open(`https://wa.me/967771826820?text=${msg}`, '_blank');
+            renderRemittancesAdmin();
+        }
+
+        // إرسال الحوالة (SMS)
+        function submitRemittanceSMS() {
+            const remitNo = document.getElementById('remitNo').value;
+            const name = document.getElementById('remitName').value;
+            if(!remitNo || !name) return alert('يرجى كتابة الاسم ورقم الحوالة أولاً');
+
+            const newRemit = { id: Date.now(), remitNo, name, answered: false, amount: 0, currency: '' };
+            storeData.remittances.push(newRemit);
+            saveStoreData();
+
+            const body = `طلب حوالة باسم: ${name} - رقم الحوالة: ${remitNo}`;
+            window.open(`sms:771826820?body=${encodeURIComponent(body)}`, '_self');
+            renderRemittancesAdmin();
+        }
+
+        // عرض الحوالات في غرفة المدير
+        function renderRemittancesAdmin() {
+            const list = document.getElementById('adminRemittanceList');
+            if(!list) return;
+            list.innerHTML = '';
+
+            storeData.remittances.forEach(r => {
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-2xl border flex justify-between items-center ${r.answered ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'}`;
+                item.innerHTML = `
+                    <div>
+                        <span class="text-xs font-bold block">👤 المستلم: ${r.name}</span>
+                        <span class="text-xs text-slate-600 block">🔢 رقم الحوالة: ${r.remitNo}</span>
+                        ${r.answered ? `<span class="text-[10px] bg-red-600 text-white font-bold px-2 py-0.5 rounded-full mt-1 inline-block">تمت الإجابة (${r.amount}${r.currency})</span>` : `<span class="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full mt-1 inline-block">جديد - بانتظار الإجابة</span>`}
+                    </div>
+                    ${!r.answered ? `<button onclick="openReplyModal(${r.id})" class="bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl">إجابة</button>` : ''}
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function openReplyModal(id) {
+            document.getElementById('targetRemitId').value = id;
+            document.getElementById('replyRemitModal').classList.remove('hidden');
+        }
+
+        function handleSendRemitReply(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('targetRemitId').value);
+            const amount = document.getElementById('remitAmountInput').value;
+            const currency = document.getElementById('remitCurrencyInput').value;
+
+            const remit = storeData.remittances.find(r => r.id === id);
+            if(remit) {
+                remit.answered = true;
+                remit.amount = amount;
+                remit.currency = currency;
+                saveStoreData();
+
+                // إظهار الإشعار المباشر للزبون
+                document.getElementById('recName').innerText = remit.name;
+                document.getElementById('recNo').innerText = remit.remitNo;
+                document.getElementById('recAmount').innerText = amount;
+                document.getElementById('recCurr').innerText = currency;
+
+                document.getElementById('replyRemitModal').classList.add('hidden');
+                document.getElementById('receiptModal').classList.remove('hidden');
+                renderRemittancesAdmin();
+            }
+        }
+
+        // رفع الإعلانات لشاشات العرض
+        function uploadBanner(e, targetSection) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    alert(`تم تحديث شاشة عرض إعلانات قسم (${targetSection}) بنجاح!`);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // إشعارات الإدارة العامة
+        function postGlobalNotice() {
+            const txt = document.getElementById('adminNoticeInput').value;
+            storeData.notice = txt;
+            saveStoreData();
+            checkGlobalNotice();
+            alert('تم نشر الإشعار العام بنجاح');
+        }
+
+        function checkGlobalNotice() {
+            if(storeData.notice) {
+                document.getElementById('announcementText').innerText = storeData.notice;
+                document.getElementById('globalAnnouncement').classList.remove('hidden');
+            }
+        }
+
+        // تنزيل كشوفات PDF للحسابات والمبيعات
+        function downloadSalesPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("محلات انور ابوحسن - كشف مبيعات السلع", 100, 10, { align: "center" });
+
+            const rows = storeData.sales.map(s => [s.customer, s.item, s.price, s.date]);
+            doc.autoTable({ head: [['الزبون', 'السلعة', 'السعر', 'التاريخ']], body: rows });
+            doc.save('Anwar_Store_Sales_Report.pdf');
+        }
+
+        function downloadRemittancePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("محلات انور ابوحسن - كشف الحوالات المالية", 100, 10, { align: "center" });
+
+            const rows = storeData.remittances.filter(r => r.answered).map(r => [r.name, r.remitNo, `${r.amount} ${r.currency}`]);
+            doc.autoTable({ head: [['اسم المستلم', 'رقم الحوالة', 'المبلغ']], body: rows });
+            doc.save('Anwar_Store_Remittances_Report.pdf');
+        }
+
+        function saveStoreData() {
+            localStorage.setItem('anwarStoreData', JSON.stringify(storeData));
+        }
+    </script>
+</body>
+</html>
