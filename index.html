@@ -1,690 +1,363 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محلات أنور أبوحسن | مجمع الخدمات الشامل</title>
-    <!-- Tailwind CSS للتصميم العصري -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome للأيقونات -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- jspdf لتوليد تقارير الـ PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #f4f7f6; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .banner-slide { display: none; }
-        .banner-slide.active { display: block; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محلات أنور أبوحسن V4 - النهائي مع الشعارات</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800;900&family=Amiri:wght@700&display=swap');
+*{font-family:'Tajawal',sans-serif}
+body{background:#f1f5f9}
+.tv-screen{background:radial-gradient(ellipse at center, #1e293b 0%, #020617 100%); border:12px solid #0f172a; border-radius:2rem; box-shadow:0 0 0 4px #facc15, 0 0 60px rgba(250,204,21,.4), inset 0 0 100px rgba(0,0,0,.8); position:relative; overflow:hidden}
+.tv-screen::before{content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,.03) 2px, rgba(255,255,255,.03) 4px); pointer-events:none; z-index:10}
+.scanline{position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, transparent, #facc15, transparent); animation:scan 3s linear infinite; opacity:.6}
+@keyframes scan{0%{top:-10%} 100%{top:110%}}
+.sig{font-family:'Amiri',serif; font-size:2.2rem; color:#facc15; text-shadow:0 0 20px rgba(250,204,21,.6); transform:rotate(-3deg)}
+.chat-bubble{max-width:75%; padding:10px 14px; border-radius:18px; font-size:13px}
+.chat-customer{background:#dcfce7; margin-left:auto; border-bottom-right-radius:4px}
+.chat-admin{background:#fff; border:1px solid #e2e8f0; border-bottom-left-radius:4px}
+.store-logo{width:56px; height:56px; border-radius:50%; border:3px solid #facc15; box-shadow:0 4px 15px rgba(0,0,0,.2); object-fit:cover}
+</style>
 </head>
-<body class="bg-slate-100 text-slate-800 pb-20">
-
-    <!-- نافذة تسجيل دخول الزبون -->
-    <div id="loginModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl text-center space-y-4 border border-emerald-500/20">
-            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl font-black shadow-inner">
-                <i class="fa-solid fa-store"></i>
-            </div>
-            <div>
-                <h2 class="text-2xl font-black text-slate-800">مرحباً بكم في</h2>
-                <h3 class="text-xl font-bold text-emerald-600">محلات أنور أبوحسن</h3>
-                <p class="text-xs text-slate-500 mt-1">يرجى تسجيل دخولك المباشر للبدء</p>
-            </div>
-            <form id="loginForm" onsubmit="handleCustomerLogin(event)" class="space-y-3 text-right">
-                <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">الاسم الثلاثي</label>
-                    <input type="text" id="custName" required placeholder="أدخل اسمك الثلاثي" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-slate-50">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-700 block mb-1">رقم الهاتف</label>
-                    <input type="tel" id="custPhone" required placeholder="أدخل رقم هاتفك" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-slate-50">
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition">
-                    دخول للمتجر <i class="fa-solid fa-arrow-left mr-2"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- الهيدر والشعار ورقم المحل -->
-    <header class="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white shadow-xl sticky top-0 z-40">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <!-- جهة اليمين: اسم المحل والأرقام -->
-            <div class="flex items-center gap-3">
-                <div onclick="triggerAdminSecret()" class="cursor-pointer select-none">
-                    <h1 class="text-lg md:text-xl font-black tracking-wide text-yellow-400">محلات أنور أبوحسن</h1>
-                    <div class="text-[10px] md:text-xs text-emerald-200 flex items-center gap-2">
-                        <span><i class="fa-solid fa-phone text-yellow-400"></i> 771826820</span>
-                        <span>|</span>
-                        <span>770210804</span>
-                    </div>
-                </div>
-            </div>
-            <!-- جهة اليسار: الشعار وحساب الزبون -->
-            <div class="flex items-center gap-3">
-                <div class="text-right hidden md:block">
-                    <span id="displayCustName" class="text-xs font-bold block text-white"></span>
-                    <span class="text-[10px] text-emerald-300">زبون معتمد</span>
-                </div>
-                <!-- الشعار الجميل المبتكر -->
-                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg border-2 border-yellow-400 p-1">
-                    <div class="w-full h-full bg-emerald-700 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-inner">
-                        <i class="fa-solid fa-shield-halved text-yellow-400"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- شريط إشعارات المدير المباشر -->
-    <div id="globalAnnouncement" class="hidden bg-amber-500 text-slate-900 px-4 py-2 font-bold text-xs flex items-center justify-between shadow-inner">
-        <div class="flex items-center gap-2">
-            <i class="fa-solid fa-bell animate-bounce text-sm"></i>
-            <span id="announcementText">إشعار عام من الإدارة...</span>
-        </div>
-        <button onclick="document.getElementById('globalAnnouncement').classList.add('hidden')" class="text-slate-900 opacity-70 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-
-    <!-- المحتوى الرئيسي للموقع -->
-    <main class="container mx-auto px-4 py-4 max-w-4xl space-y-6">
-
-        <!-- الشاشة الرئيسية -->
-        <div id="pageHome" class="page-section space-y-6">
-            <!-- شاشات العرض الإعلانية الرئيسية -->
-            <div class="relative w-full h-44 md:h-56 bg-slate-800 rounded-3xl overflow-hidden shadow-xl border-2 border-emerald-500/20">
-                <div id="homeBannerContainer" class="w-full h-full">
-                    <div class="banner-slide active w-full h-full bg-gradient-to-r from-emerald-600 to-teal-700 flex items-center justify-center text-white p-6 text-center">
-                        <div>
-                            <span class="bg-yellow-400 text-slate-900 text-[10px] font-black px-2 py-1 rounded-full uppercase mb-2 inline-block">أهلاً بكم</span>
-                            <h2 class="text-2xl font-black">أفضل الأسعار والخدمات المباشرة</h2>
-                            <p class="text-xs text-emerald-100 mt-1">المواد الغذائية، المشتقات النفطية، والخدمات المالية في مكان واحد</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- الأزرار الرئيسية الأربعة -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button onclick="showPage('pageFood')" class="bg-white p-5 rounded-3xl shadow-md border border-slate-100 hover:border-emerald-500 transition-all text-center space-y-2 group hover:-translate-y-1">
-                    <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                        <i class="fa-solid fa-basket-shopping"></i>
-                    </div>
-                    <span class="font-bold text-sm block text-slate-800">المواد الغذائية</span>
-                </button>
-
-                <button onclick="showPage('pageFuel')" class="bg-white p-5 rounded-3xl shadow-md border border-slate-100 hover:border-amber-500 transition-all text-center space-y-2 group hover:-translate-y-1">
-                    <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl group-hover:bg-amber-500 group-hover:text-white transition-all">
-                        <i class="fa-solid fa-gas-pump"></i>
-                    </div>
-                    <span class="font-bold text-sm block text-slate-800">المشتقات النفطية</span>
-                </button>
-
-                <button onclick="showPage('pageRemittance')" class="bg-white p-5 rounded-3xl shadow-md border border-slate-100 hover:border-blue-500 transition-all text-center space-y-2 group hover:-translate-y-1">
-                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl group-hover:bg-blue-600 group-hover:text-white transition-all">
-                        <i class="fa-solid fa-money-bill-transfer"></i>
-                    </div>
-                    <span class="font-bold text-sm block text-slate-800">الحوالات النقدية</span>
-                </button>
-
-                <button onclick="showPage('pageMore')" class="bg-white p-5 rounded-3xl shadow-md border border-slate-100 hover:border-purple-500 transition-all text-center space-y-2 group hover:-translate-y-1">
-                    <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto text-2xl group-hover:bg-purple-600 group-hover:text-white transition-all">
-                        <i class="fa-solid fa-border-all"></i>
-                    </div>
-                    <span class="font-bold text-sm block text-slate-800">المزيد</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- قسم المواد الغذائية -->
-        <div id="pageFood" class="page-section hidden space-y-4">
-            <div id="foodBannerContainer" class="w-full h-36 bg-emerald-800 rounded-3xl overflow-hidden shadow-lg flex items-center justify-center text-white font-bold">
-                <span class="text-lg"><i class="fa-solid fa-utensils ml-2"></i> قسم المواد الغذائية والتموينات</span>
-            </div>
-            <div id="gridFood" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <!-- المنتجات المضافة تظهر هنا ديناميكياً -->
-            </div>
-        </div>
-
-        <!-- قسم المشتقات النفطية والزيوت -->
-        <div id="pageFuel" class="page-section hidden space-y-6">
-            <div id="fuelBannerContainer" class="w-full h-36 bg-amber-700 rounded-3xl overflow-hidden shadow-lg flex items-center justify-center text-white font-bold">
-                <span class="text-lg"><i class="fa-solid fa-fire ml-2"></i> قسم المشتقات النفطية والزيوت</span>
-            </div>
-
-            <h3 class="font-black text-slate-800 text-md flex items-center gap-2"><i class="fa-solid fa-droplet text-amber-500"></i> المشتقات الأساسية</h3>
-            <div id="gridFuelMain" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- البترول والديزل والغاز تظهر هنا -->
-            </div>
-
-            <h3 class="font-black text-slate-800 text-md flex items-center gap-2 mt-4"><i class="fa-solid fa-oil-can text-amber-600"></i> قسم الزيوت والمحركات</h3>
-            <div id="gridOils" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <!-- منتجات الزيوت المضافة تظهر هنا -->
-            </div>
-        </div>
-
-        <!-- قسم الحوالات النقدية -->
-        <div id="pageRemittance" class="page-section hidden space-y-4">
-            <div id="remittanceBannerContainer" class="w-full h-28 bg-blue-900 rounded-3xl overflow-hidden shadow-lg flex items-center justify-center text-white font-bold">
-                <span class="text-lg"><i class="fa-solid fa-wallet ml-2"></i> خدمة استلام وتسليم الحوالات المباشرة</span>
-            </div>
-
-            <div class="bg-white p-6 rounded-3xl shadow-xl border border-blue-100 space-y-4">
-                <h3 class="text-lg font-black text-slate-800 text-center border-b pb-3">طلب استلام حوالة</h3>
-                <form id="remittanceForm" onsubmit="submitRemittance(event)" class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-slate-700 block mb-1">1. رقم الحوالة</label>
-                        <input type="number" id="remitNo" required placeholder="أدخل رقم الحوالة" class="w-full p-3 rounded-xl border border-slate-200 outline-none text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-700 block mb-1">2. الاسم الكامل للمستلم</label>
-                        <input type="text" id="remitName" required placeholder="أدخل الاسم الرباعي" class="w-full p-3 rounded-xl border border-slate-200 outline-none text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-xs font-bold text-slate-700 block mb-1">3. صوّر وجه البطاقة (أمامي)</label>
-                            <input type="file" id="remitCardFront" accept="image/*" class="w-full text-xs p-2 border rounded-xl bg-slate-50">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-700 block mb-1">4. صوّر ظهر البطاقة (خلفي)</label>
-                            <input type="file" id="remitCardBack" accept="image/*" class="w-full text-xs p-2 border rounded-xl bg-slate-50">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
-                        <i class="fa-brands fa-whatsapp text-xl"></i>طلب إستلام الحوالة (تحويل للواتساب)
-                    </button>
-                    <button type="button" onclick="submitRemittanceSMS()" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-comment-sms text-base"></i> إرسال عبر رسالة نصية SMS (بدون صور)
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- قسم المزيد -->
-        <div id="pageMore" class="page-section hidden space-y-6">
-            <div id="moreBannerContainer" class="w-full h-28 bg-purple-900 rounded-3xl overflow-hidden shadow-lg flex items-center justify-center text-white font-bold">
-                <span class="text-lg"><i class="fa-solid fa-cubes ml-2"></i> أقسام الخدمات الإضافية</span>
-            </div>
-
-            <h3 class="font-black text-slate-800 text-md flex items-center gap-2"><i class="fa-solid fa-wheat-awn text-emerald-600"></i> قسم المبيدات الزراعية</h3>
-            <div id="gridPesticides" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
-
-            <h3 class="font-black text-slate-800 text-md flex items-center gap-2"><i class="fa-solid fa-gem text-purple-600"></i> قسم الاكسسوارات</h3>
-            <div id="gridAccessories" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
-
-            <h3 class="font-black text-slate-800 text-md flex items-center gap-2"><i class="fa-solid fa-hand-holding-heart text-blue-600"></i> قسم خدمات أخرى</h3>
-            <div id="gridOtherServices" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
-        </div>
-
-        <!-- ================= غُرفة المدير (ADMIN PANEL) ================= -->
-        <div id="pageAdmin" class="page-section hidden space-y-6">
-            <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-2xl flex justify-between items-center border border-yellow-400/30">
-                <div>
-                    <h2 class="text-xl font-black text-yellow-400"><i class="fa-solid fa-user-shield ml-2"></i> غرفة التحكم والبرمجة - محلات أنور أبوحسن</h2>
-                    <p class="text-xs text-slate-400 mt-1">التحكم الكامل بالمتجر والحوالات والإعدادات</p>
-                </div>
-                <button onclick="showPage('pageHome')" class="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-2 rounded-xl font-bold">خروج</button>
-            </div>
-
-            <!-- تبويبات لوحة التحكم 5 أقسام -->
-            <div class="flex overflow-x-auto gap-2 pb-2 hide-scrollbar">
-                <button onclick="switchAdminTab('tabAddGoods')" class="admin-tab-btn bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-plus-circle ml-1"></i> إضافة سلع</button>
-                <button onclick="switchAdminTab('tabRemittanceReply')" class="admin-tab-btn bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-reply ml-1"></i> الرد على الحوالات</button>
-                <button onclick="switchAdminTab('tabSetBanners')" class="admin-tab-btn bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-images ml-1"></i> تعين الإعلانات</button>
-                <button onclick="switchAdminTab('tabAccounts')" class="admin-tab-btn bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-file-invoice-dollar ml-1"></i> الحسابات التقارير</button>
-                <button onclick="switchAdminTab('tabSettings')" class="admin-tab-btn bg-slate-800 text-slate-300 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap"><i class="fa-solid fa-gears ml-1"></i> الإعدادات</button>
-            </div>
-
-            <!-- 1. قسم إضافة سلع -->
-            <div id="tabAddGoods" class="admin-tab bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
-                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">اختر القسم لإضافة السلعة:</h3>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <button onclick="openAddItemModal('food')" class="p-4 bg-emerald-50 text-emerald-800 font-bold rounded-2xl text-xs hover:bg-emerald-100 border border-emerald-200 text-right"><i class="fa-solid fa-utensils block text-lg mb-1"></i> إضافة مواد غذائية</button>
-                    <button onclick="openAddItemModal('fuel')" class="p-4 bg-amber-50 text-amber-800 font-bold rounded-2xl text-xs hover:bg-amber-100 border border-amber-200 text-right"><i class="fa-solid fa-gas-pump block text-lg mb-1"></i> إضافة مشتقات نفطية</button>
-                    <button onclick="openAddItemModal('oils')" class="p-4 bg-orange-50 text-orange-800 font-bold rounded-2xl text-xs hover:bg-orange-100 border border-orange-200 text-right"><i class="fa-solid fa-oil-can block text-lg mb-1"></i> إضافة زيوت</button>
-                    <button onclick="openAddItemModal('pesticides')" class="p-4 bg-teal-50 text-teal-800 font-bold rounded-2xl text-xs hover:bg-teal-100 border border-teal-200 text-right"><i class="fa-solid fa-wheat-awn block text-lg mb-1"></i> إضافة مبيدات زراعية</button>
-                    <button onclick="openAddItemModal('accessories')" class="p-4 bg-purple-50 text-purple-800 font-bold rounded-2xl text-xs hover:bg-purple-100 border border-purple-200 text-right"><i class="fa-solid fa-gem block text-lg mb-1"></i> إضافة إكسسوارات</button>
-                    <button onclick="openAddItemModal('services')" class="p-4 bg-blue-50 text-blue-800 font-bold rounded-2xl text-xs hover:bg-blue-100 border border-blue-200 text-right"><i class="fa-solid fa-hand-holding-heart block text-lg mb-1"></i> إضافة خدمات أخرى</button>
-                </div>
-            </div>
-
-            <!-- 2. قسم الرد على الحوالات -->
-            <div id="tabRemittanceReply" class="admin-tab hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
-                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">طلبات الحوالات النقدية الواردة:</h3>
-                <div id="adminRemittanceList" class="space-y-3">
-                    <!-- تظهر الحوالات هنا مع حالة خضراء للجديدة وحمراء للمُجاب عليها -->
-                </div>
-            </div>
-
-            <!-- 3. قسم تعين الإعلانات -->
-            <div id="tabSetBanners" class="admin-tab hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
-                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">تعيين صور شاشات العرض والإعلانات:</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2">
-                        <label class="text-xs font-bold block">إعلانات الصفحة الرئيسية</label>
-                        <input type="file" onchange="uploadBanner(event, 'home')" accept="image/*" class="text-xs w-full">
-                    </div>
-                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2">
-                        <label class="text-xs font-bold block">إعلانات قسم المواد الغذائية</label>
-                        <input type="file" onchange="uploadBanner(event, 'food')" accept="image/*" class="text-xs w-full">
-                    </div>
-                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2">
-                        <label class="text-xs font-bold block">إعلانات قسم المشتقات النفطية</label>
-                        <input type="file" onchange="uploadBanner(event, 'fuel')" accept="image/*" class="text-xs w-full">
-                    </div>
-                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2">
-                        <label class="text-xs font-bold block">إعلانات قسم الحوالات النقدية</label>
-                        <input type="file" onchange="uploadBanner(event, 'remittance')" accept="image/*" class="text-xs w-full">
-                    </div>
-                    <div class="p-4 border rounded-2xl bg-slate-50 space-y-2 md:col-span-2">
-                        <label class="text-xs font-bold block">إعلانات قسم المزيد</label>
-                        <input type="file" onchange="uploadBanner(event, 'more')" accept="image/*" class="text-xs w-full">
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. قسم الحسابات وتوليد PDF -->
-            <div id="tabAccounts" class="admin-tab hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
-                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">سجلات الحسابات وتصدير PDF:</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-5 border rounded-2xl bg-emerald-50 space-y-3">
-                        <h4 class="font-bold text-xs text-emerald-900">كشف مبيعات السلع والمنتجات</h4>
-                        <button onclick="downloadSalesPDF()" class="w-full bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-sm"></i> تنزيل كشف المبيعات (PDF)</button>
-                    </div>
-                    <div class="p-5 border rounded-2xl bg-blue-50 space-y-3">
-                        <h4 class="font-bold text-xs text-blue-900">كشف الحوالات المالية المسددة</h4>
-                        <button onclick="downloadRemittancePDF()" class="w-full bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2"><i class="fa-solid fa-file-pdf text-sm"></i> تنزيل كشف الحوالات (PDF)</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 5. قسم الإعدادات والصلاحيات -->
-            <div id="tabSettings" class="admin-tab hidden bg-white p-6 rounded-3xl shadow-lg border border-slate-200 space-y-4">
-                <h3 class="font-bold text-slate-800 text-sm border-b pb-2">صلاحيات المدير وإدارة المشتركين:</h3>
-                
-                <div class="space-y-3">
-                    <div class="border p-4 rounded-2xl space-y-2 bg-slate-50">
-                        <label class="text-xs font-bold block">إرسال إشعار عاجل لجميع زبائن الموقع</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="adminNoticeInput" placeholder="اكتب الرسالة الإشعارية..." class="w-full p-2.5 border rounded-xl text-xs outline-none">
-                            <button onclick="postGlobalNotice()" class="bg-amber-500 text-slate-900 font-bold px-4 rounded-xl text-xs">نشر</button>
-                        </div>
-                    </div>
-
-                    <div class="border p-4 rounded-2xl space-y-2">
-                        <h4 class="text-xs font-bold">إحصائيات المشتركين والزبائن</h4>
-                        <p class="text-xs text-slate-600">إجمالي الزبائن المسجلين: <span id="totalCustomersCount" class="font-black text-emerald-600">1</span> زبون</p>
-                        <div id="customersList" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- شريط العودة المباشر للرئيسية في الأسفل -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 py-2.5 px-4 z-40">
-        <div class="container mx-auto max-w-md flex justify-center">
-            <button onclick="showPage('pageHome')" class="bg-emerald-700 hover:bg-emerald-800 text-white px-8 py-2 rounded-2xl shadow-lg font-bold text-xs flex items-center gap-2 transition-all active:scale-95">
-                <i class="fa-solid fa-house text-sm"></i> العودة للشاشة الرئيسية
-            </button>
-        </div>
-    </nav>
-
-    <!-- نافذة إضافة منتج (تُفتح من غرفة المدير) -->
-    <div id="addItemModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
-            <h3 class="font-black text-slate-800 text-sm border-b pb-2" id="addItemModalTitle">إضافة منتج جديد</h3>
-            <form onsubmit="handleSaveItem(event)" class="space-y-3">
-                <input type="hidden" id="itemCategoryTarget">
-                <div>
-                    <label class="text-xs font-bold block mb-1">صورة المنتج</label>
-                    <input type="file" id="itemImageInput" accept="image/*" class="w-full text-xs p-2 border rounded-xl">
-                </div>
-                <div>
-                    <label class="text-xs font-bold block mb-1">اسم السلعة / المنتج</label>
-                    <input type="text" id="itemNameInput" required placeholder="مثال: أرز شاهين 10 كجم" class="w-full p-2.5 border rounded-xl text-xs outline-none">
-                </div>
-                <div>
-                    <label class="text-xs font-bold block mb-1">سعر السلعة</label>
-                    <input type="text" id="itemPriceInput" required placeholder="مثال: 12,000 ريال يمني" class="w-full p-2.5 border rounded-xl text-xs outline-none">
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">حفظ وإظهار للزبائن</button>
-                    <button type="button" onclick="closeAddItemModal()" class="w-1/2 bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- نافذة إجابة المدير على الحوالة -->
-    <div id="replyRemitModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl">
-            <h3 class="font-black text-slate-800 text-sm border-b pb-2">الرد على طلب الحوالة وتسديدها</h3>
-            <form onsubmit="handleSendRemitReply(event)" class="space-y-3">
-                <input type="hidden" id="targetRemitId">
-                <div>
-                    <label class="text-xs font-bold block mb-1">المبلغ المسحوب</label>
-                    <input type="number" id="remitAmountInput" required placeholder="أدخل المبلغ" class="w-full p-2.5 border rounded-xl text-xs outline-none">
-                </div>
-                <div>
-                    <label class="text-xs font-bold block mb-1">نوع العملة</label>
-                    <select id="remitCurrencyInput" class="w-full p-2.5 border rounded-xl text-xs outline-none bg-white">
-                        <option value="ريال يمني">ريال يمني</option>
-                        <option value="ريال سعودي">ريال سعودي</option>
-                        <option value="دولار أمريكي">دولار أمريكي</option>
-                    </select>
-                </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">إرسال الإشعار للزبون</button>
-                    <button type="button" onclick="document.getElementById('replyRemitModal').classList.add('hidden')" class="w-1/2 bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-xs">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- نافذة الإشعار المستلم للزبون -->
-    <div id="receiptModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center space-y-4 shadow-2xl border-2 border-emerald-500">
-            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-black">
-                <i class="fa-solid fa-shield-halved text-yellow-500"></i>
-            </div>
-            <h3 class="text-sm font-bold text-slate-500">محلات أنور أبوحسن</h3>
-            <div class="bg-slate-50 p-4 rounded-2xl text-right text-xs space-y-2 border">
-                <p><strong>اسم المستلم:</strong> <span id="recName"></span></p>
-                <p><strong>رقم الحوالة:</strong> <span id="recNo"></span></p>
-                <p><strong>المبلغ المستلم:</strong> <span id="recAmount" class="text-emerald-600 font-black text-sm"></span> <span id="recCurr"></span></p>
-            </div>
-            <p class="text-xs font-bold text-emerald-700">أنور أبوحسن للحوالات المالية - نعتز بثقتكم فينا</p>
-            <button onclick="document.getElementById('receiptModal').classList.add('hidden')" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">إغلاق الإشعار</button>
-        </div>
-    </div>
-
-    <!-- JavaScript الأساسي للتفاعل والإدارة -->
-    <script>
-        // قواعد البيانات المحلية والتخزين
-        let storeData = JSON.parse(localStorage.getItem('anwarStoreData')) || {
-            items: [],
-            remittances: [],
-            sales: [],
-            customers: [],
-            notice: ''
-        };
-
-        let currentCustomer = JSON.parse(localStorage.getItem('currentCust')) || null;
-        let adminClickCounter = 0;
-
-        window.onload = function() {
-            if(!currentCustomer) {
-                document.getElementById('loginModal').classList.remove('hidden');
-            } else {
-                document.getElementById('loginModal').classList.add('hidden');
-                document.getElementById('displayCustName').innerText = currentCustomer.name;
-            }
-            renderAllProducts();
-            renderRemittancesAdmin();
-            checkGlobalNotice();
-        };
-
-        // تسجيل دخول الزبون
-        function handleCustomerLogin(e) {
-            e.preventDefault();
-            const name = document.getElementById('custName').value;
-            const phone = document.getElementById('custPhone').value;
-            currentCustomer = { name, phone };
-            localStorage.setItem('currentCust', JSON.stringify(currentCustomer));
-
-            // حفظ في قائمة المشتركين للمدير
-            if(!storeData.customers.find(c => c.phone === phone)) {
-                storeData.customers.push(currentCustomer);
-                saveStoreData();
-            }
-
-            document.getElementById('displayCustName').innerText = name;
-            document.getElementById('loginModal').classList.add('hidden');
-        }
-
-        // التبديل بين الصفحات
-        function showPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
-            document.getElementById(pageId).classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // دخول المدير السري عند الضغط المتكرر على ترويسة الموقع
-        function triggerAdminSecret() {
-            adminClickCounter++;
-            if(adminClickCounter >= 4) {
-                adminClickCounter = 0;
-                const pass = prompt("أدخل رمز الدخول لغرفة المدير صاحب المحل:");
-                if(pass === "1234") { // الرمز السري المفتراضي
-                    showPage('pageAdmin');
-                } else if (pass !== null) {
-                    alert("رمز الدخول غير صحيح!");
-                }
-            }
-        }
-
-        // تحكم التبويبات داخل لوحة المدير
-        function switchAdminTab(tabId) {
-            document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-        }
-
-        // فتح نافذة إضافة السلع
-        function openAddItemModal(category) {
-            document.getElementById('itemCategoryTarget').value = category;
-            document.getElementById('addItemModal').classList.remove('hidden');
-        }
-
-        function closeAddItemModal() {
-            document.getElementById('addItemModal').classList.add('hidden');
-        }
-
-        // حفظ منتج جديد وإظهاره تلقائياً
-        function handleSaveItem(e) {
-            e.preventDefault();
-            const cat = document.getElementById('itemCategoryTarget').value;
-            const name = document.getElementById('itemNameInput').value;
-            const price = document.getElementById('itemPriceInput').value;
-            const fileInput = document.getElementById('itemImageInput');
-
-            let imgUrl = 'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'; // صورة افتراضية جميلة
-
-            const newItem = { id: Date.now(), cat, name, price, img: imgUrl };
-
-            if(fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    newItem.img = evt.target.result;
-                    storeData.items.push(newItem);
-                    saveStoreData();
-                    renderAllProducts();
-                    closeAddItemModal();
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                storeData.items.push(newItem);
-                saveStoreData();
-                renderAllProducts();
-                closeAddItemModal();
-            }
-        }
-
-        // عرض المنتجات بالمربعات المصممة مسبقاً (لا تظهر المربعات الفارغة)
-        function renderAllProducts() {
-            const containers = {
-                food: document.getElementById('gridFood'),
-                fuel: document.getElementById('gridFuelMain'),
-                oils: document.getElementById('gridOils'),
-                pesticides: document.getElementById('gridPesticides'),
-                accessories: document.getElementById('gridAccessories'),
-                services: document.getElementById('gridOtherServices')
-            };
-
-            Object.keys(containers).forEach(key => { if(containers[key]) containers[key].innerHTML = ''; });
-
-            storeData.items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-3xl shadow-sm border border-slate-100 text-center space-y-2 flex flex-col justify-between";
-                card.innerHTML = `
-                    <img src="${item.img}" class="w-20 h-20 object-cover mx-auto rounded-2xl shadow-inner">
-                    <h4 class="font-bold text-xs text-slate-800 line-clamp-2">${item.name}</h4>
-                    <span class="text-xs font-black text-emerald-600 bg-emerald-50 py-1 px-2 rounded-lg inline-block">${item.price}</span>
-                    <button onclick="orderProduct('${item.name}', '${item.price}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition">طلب مباشر</button>
-                `;
-                if(containers[item.cat]) containers[item.cat].appendChild(card);
-            });
-        }
-
-        function orderProduct(name, price) {
-            if(!currentCustomer) return alert('يرجى تسجيل الدخول أولاً');
-            storeData.sales.push({ customer: currentCustomer.name, item: name, price, date: new Date().toLocaleDateString('ar-YE') });
-            saveStoreData();
-            alert(`تم تسجيل طلبك لمنتج (${name}). يرجى زيارة المحل للاستلام.`);
-        }
-
-        // إرسال الحوالة (واتساب)
-        function submitRemittance(e) {
-            e.preventDefault();
-            const remitNo = document.getElementById('remitNo').value;
-            const name = document.getElementById('remitName').value;
-
-            // حفظ الحوالة للمدير
-            const newRemit = { id: Date.now(), remitNo, name, answered: false, amount: 0, currency: '' };
-            storeData.remittances.push(newRemit);
-            saveStoreData();
-
-            const msg = `📥 *طلب استلام حوالة - محلات أنور أبوحسن*%0A` +
-                        `👤 *اسم المستلم:* ${encodeURIComponent(name)}%0A` +
-                        `🔢 *رقم الحوالة:* ${encodeURIComponent(remitNo)}%0A%0A` +
-                        `📌 *ملاحظة:* تم إرفاق صوّر البطاقة الشخصية (أمامي وخلفي) مع هذه الرسالة.`;
-
-            window.open(`https://wa.me/967771826820?text=${msg}`, '_blank');
-            renderRemittancesAdmin();
-        }
-
-        // إرسال الحوالة (SMS)
-        function submitRemittanceSMS() {
-            const remitNo = document.getElementById('remitNo').value;
-            const name = document.getElementById('remitName').value;
-            if(!remitNo || !name) return alert('يرجى كتابة الاسم ورقم الحوالة أولاً');
-
-            const newRemit = { id: Date.now(), remitNo, name, answered: false, amount: 0, currency: '' };
-            storeData.remittances.push(newRemit);
-            saveStoreData();
-
-            const body = `طلب حوالة باسم: ${name} - رقم الحوالة: ${remitNo}`;
-            window.open(`sms:771826820?body=${encodeURIComponent(body)}`, '_self');
-            renderRemittancesAdmin();
-        }
-
-        // عرض الحوالات في غرفة المدير
-        function renderRemittancesAdmin() {
-            const list = document.getElementById('adminRemittanceList');
-            if(!list) return;
-            list.innerHTML = '';
-
-            storeData.remittances.forEach(r => {
-                const item = document.createElement('div');
-                item.className = `p-4 rounded-2xl border flex justify-between items-center ${r.answered ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'}`;
-                item.innerHTML = `
-                    <div>
-                        <span class="text-xs font-bold block">👤 المستلم: ${r.name}</span>
-                        <span class="text-xs text-slate-600 block">🔢 رقم الحوالة: ${r.remitNo}</span>
-                        ${r.answered ? `<span class="text-[10px] bg-red-600 text-white font-bold px-2 py-0.5 rounded-full mt-1 inline-block">تمت الإجابة (${r.amount}${r.currency})</span>` : `<span class="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full mt-1 inline-block">جديد - بانتظار الإجابة</span>`}
-                    </div>
-                    ${!r.answered ? `<button onclick="openReplyModal(${r.id})" class="bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl">إجابة</button>` : ''}
-                `;
-                list.appendChild(item);
-            });
-        }
-
-        function openReplyModal(id) {
-            document.getElementById('targetRemitId').value = id;
-            document.getElementById('replyRemitModal').classList.remove('hidden');
-        }
-
-        function handleSendRemitReply(e) {
-            e.preventDefault();
-            const id = parseInt(document.getElementById('targetRemitId').value);
-            const amount = document.getElementById('remitAmountInput').value;
-            const currency = document.getElementById('remitCurrencyInput').value;
-
-            const remit = storeData.remittances.find(r => r.id === id);
-            if(remit) {
-                remit.answered = true;
-                remit.amount = amount;
-                remit.currency = currency;
-                saveStoreData();
-
-                // إظهار الإشعار المباشر للزبون
-                document.getElementById('recName').innerText = remit.name;
-                document.getElementById('recNo').innerText = remit.remitNo;
-                document.getElementById('recAmount').innerText = amount;
-                document.getElementById('recCurr').innerText = currency;
-
-                document.getElementById('replyRemitModal').classList.add('hidden');
-                document.getElementById('receiptModal').classList.remove('hidden');
-                renderRemittancesAdmin();
-            }
-        }
-
-        // رفع الإعلانات لشاشات العرض
-        function uploadBanner(e, targetSection) {
-            const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    alert(`تم تحديث شاشة عرض إعلانات قسم (${targetSection}) بنجاح!`);
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // إشعارات الإدارة العامة
-        function postGlobalNotice() {
-            const txt = document.getElementById('adminNoticeInput').value;
-            storeData.notice = txt;
-            saveStoreData();
-            checkGlobalNotice();
-            alert('تم نشر الإشعار العام بنجاح');
-        }
-
-        function checkGlobalNotice() {
-            if(storeData.notice) {
-                document.getElementById('announcementText').innerText = storeData.notice;
-                document.getElementById('globalAnnouncement').classList.remove('hidden');
-            }
-        }
-
-        // تنزيل كشوفات PDF للحسابات والمبيعات
-        function downloadSalesPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("محلات انور ابوحسن - كشف مبيعات السلع", 100, 10, { align: "center" });
-
-            const rows = storeData.sales.map(s => [s.customer, s.item, s.price, s.date]);
-            doc.autoTable({ head: [['الزبون', 'السلعة', 'السعر', 'التاريخ']], body: rows });
-            doc.save('Anwar_Store_Sales_Report.pdf');
-        }
-
-        function downloadRemittancePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text("محلات انور ابوحسن - كشف الحوالات المالية", 100, 10, { align: "center" });
-
-            const rows = storeData.remittances.filter(r => r.answered).map(r => [r.name, r.remitNo, `${r.amount} ${r.currency}`]);
-            doc.autoTable({ head: [['اسم المستلم', 'رقم الحوالة', 'المبلغ']], body: rows });
-            doc.save('Anwar_Store_Remittances_Report.pdf');
-        }
-
-        function saveStoreData() {
-            localStorage.setItem('anwarStoreData', JSON.stringify(storeData));
-        }
-    </script>
+<body class="pb-32">
+
+<!-- LOGIN -->
+<div id="loginModal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-xl z-[200] flex items-center justify-center p-4">
+<div class="bg-white rounded-[2rem] p-7 w-full max-w-md shadow-2xl text-center space-y-4 border-2 border-yellow-400/30">
+<img src="store-logo.webp" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3081/3081559.png'" class="w-24 h-24 mx-auto rounded-full border-4 border-yellow-400 shadow-xl object-cover">
+<h2 class="text-2xl font-black">محلات أنور أبوحسن</h2>
+<p class="text-xs text-slate-500">V4 النهائي - دفع 782939973 - بدون توصيل</p>
+<form onsubmit="handleLogin(event)" class="space-y-3 text-right">
+<input id="custName" required placeholder="الاسم الثلاثي" class="w-full p-3.5 rounded-2xl border bg-slate-50 text-sm">
+<input id="custPhone" required placeholder="رقم الهاتف" class="w-full p-3.5 rounded-2xl border bg-slate-50 text-sm">
+<button class="w-full bg-emerald-600 text-white font-black py-3.5 rounded-2xl">دخول فوري <i class="fa-solid fa-bolt mr-2"></i></button>
+</form>
+</div>
+</div>
+
+<header class="bg-gradient-to-r from-emerald-900 to-teal-900 text-white sticky top-0 z-50 shadow-xl">
+<div class="container mx-auto px-4 py-2.5 flex justify-between items-center max-w-6xl">
+<div class="flex items-center gap-3" onclick="triggerAdmin()">
+<img src="store-logo.webp" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3081/3081559.png'" class="store-logo">
+<div><h1 class="font-black text-yellow-400 text-[1.05rem] leading-none">محلات أنور أبوحسن</h1><p class="text-[10px] text-emerald-200">771826820 | 770210804 | دفع: 782939973</p></div>
+</div>
+<div class="flex items-center gap-2">
+<button onclick="openChat()" class="relative w-10 h-10 bg-yellow-400 text-slate-900 rounded-xl flex items-center justify-center"><i class="fa-solid fa-comments"></i><span id="chatBadge" class="absolute -top-1 -right-1 bg-red-600 text-white text-[8px] w-4 h-4 rounded-full hidden">!</span></button>
+<button onclick="showPage('pageDeveloper')" class="w-10 h-10 bg-white/10 rounded-xl"><i class="fa-solid fa-code text-sm"></i></button>
+<span id="displayName" class="hidden md:block text-xs font-bold"></span>
+</div>
+</div>
+</header>
+
+<div id="noticeBar" class="hidden bg-amber-400 text-slate-900 px-4 py-2 text-xs font-bold flex justify-between"><span id="noticeText"></span><button onclick="this.parentElement.classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button></div>
+<div class="bg-slate-900 text-white text-[11px] px-4 py-1.5 flex gap-3 overflow-x-auto whitespace-nowrap"><span><i class="fa-solid fa-wallet text-yellow-400"></i> 782939973 جيب/فلوسك/جوالي</span><span id="liveTime"></span><span class="bg-emerald-600 px-2 rounded-full text-[9px]">بدون توصيل - استلام من المحل</span></div>
+
+<main class="container mx-auto px-4 py-4 max-w-6xl space-y-5">
+
+<div id="homeBannerArea" class="relative">
+<div id="homeBannerContainer" class="h-64 md:h-80 rounded-[2rem] overflow-hidden shadow-2xl bg-slate-800 relative"></div>
+<div id="bannerDots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10"></div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<button onclick="showPage('pageFood')" class="bg-white p-5 rounded-[1.6rem] shadow border text-center"><div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-basket-shopping"></i></div><span class="block font-bold text-sm mt-1">غذائية</span></button>
+<button onclick="showPage('pageFuel')" class="bg-white p-5 rounded-[1.6rem] shadow border text-center"><div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-gas-pump"></i></div><span class="block font-bold text-sm mt-1">نفطية</span></button>
+<button onclick="showPage('pageRemittance')" class="bg-white p-5 rounded-[1.6rem] shadow border text-center"><div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-money-bill-transfer"></i></div><span class="block font-bold text-sm mt-1">حوالات</span></button>
+<button onclick="showPage('pageMore')" class="bg-white p-5 rounded-[1.6rem] shadow border text-center"><div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-border-all"></i></div><span class="block font-bold text-sm mt-1">المزيد</span></button>
+</div>
+
+<div onclick="showPage('pageDeveloper')" class="cursor-pointer bg-gradient-to-r from-slate-900 via-slate-800 to-black rounded-[1.5rem] p-4 flex items-center gap-4 border border-yellow-400/30 shadow-xl hover:scale-[1.01] transition">
+<img src="dev-logo.webp" onerror="this.src='store-logo.webp'" class="w-11 h-11 rounded-full border-2 border-yellow-400 object-cover">
+<div class="flex-1"><h3 class="font-black text-yellow-400 text-sm">شعار المطور نصر أبوحسن - 770210804</h3><p class="text-[11px] text-slate-300">لمعرفة مطور هذا الموقع اضغط هنا - توقيع أصلي</p></div>
+<div class="bg-yellow-400 text-slate-900 px-3 py-1.5 rounded-full text-[10px] font-black">اضغط هنا <i class="fa-solid fa-arrow-left mr-1"></i></div>
+</div>
+
+<div id="pageHome" class="page-section space-y-5">
+<div class="bg-white rounded-2xl p-4 shadow border"><h3 class="font-bold text-sm"><i class="fa-solid fa-fire text-orange-500 ml-1"></i> المنتجات المميزة - دقيق</h3><div id="featuredGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2"></div></div>
+</div>
+
+<div id="pageFood" class="page-section hidden space-y-4"><div class="bg-emerald-800 text-white p-4 rounded-2xl font-bold"><i class="fa-solid fa-wheat-awn ml-2"></i> المواد الغذائية - كيس دقيق - استلام من المحل فقط</div><div id="gridFood" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div></div>
+<div id="pageFuel" class="page-section hidden space-y-4"><div class="bg-amber-700 text-white p-4 rounded-2xl font-bold">المشتقات النفطية والزيوت</div><div id="gridFuelMain" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div><h3 class="font-bold text-sm mt-2">الزيوت</h3><div id="gridOils" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div></div>
+<div id="pageMore" class="page-section hidden space-y-4"><div id="gridPesticides" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div><div id="gridAccessories" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3"></div><div id="gridOtherServices" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3"></div></div>
+
+<div id="pageRemittance" class="page-section hidden space-y-4">
+<div class="bg-blue-900 text-white p-5 rounded-2xl"><h3 class="font-black">الحوالات + الدفع 782939973 - واتساب منظم 771826820</h3></div>
+<div class="bg-white p-5 rounded-2xl shadow border space-y-4">
+<div class="grid grid-cols-3 gap-2">
+<div class="border p-3 rounded-2xl text-center bg-emerald-50"><p class="font-black text-xs">جيب</p><p class="text-[10px]">782939973</p><button onclick="payWallet('جيب')" class="bg-emerald-600 text-white text-[10px] px-3 py-1 rounded-full mt-1">دفع</button></div>
+<div class="border p-3 rounded-2xl text-center bg-blue-50"><p class="font-black text-xs">فلوسك</p><p class="text-[10px]">782939973</p><button onclick="payWallet('فلوسك')" class="bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full mt-1">دفع</button></div>
+<div class="border p-3 rounded-2xl text-center bg-purple-50"><p class="font-black text-xs">جوالي</p><p class="text-[10px]">782939973</p><button onclick="payWallet('جوالي')" class="bg-purple-600 text-white text-[10px] px-3 py-1 rounded-full mt-1">دفع</button></div>
+</div>
+<form id="remitForm" onsubmit="submitRemit(event)" class="space-y-3 border-t pt-4">
+<h4 class="font-bold text-sm">طلب حوالة - رسالة منظمة إلى 771826820</h4>
+<div class="grid grid-cols-2 gap-2"><input id="remitNo" required placeholder="رقم الحوالة" class="p-3 border rounded-xl bg-slate-50 text-sm"><input id="remitName" required placeholder="الاسم الرباعي" class="p-3 border rounded-xl bg-slate-50 text-sm"></div>
+<div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] font-bold">أمامي</label><input type="file" id="cardFront" accept="image/*" class="w-full text-xs p-2 border rounded-xl bg-slate-50"></div><div><label class="text-[10px] font-bold">خلفي</label><input type="file" id="cardBack" accept="image/*" class="w-full text-xs p-2 border rounded-xl bg-slate-50"></div></div>
+<button class="w-full bg-emerald-600 text-white py-3 rounded-xl text-sm font-bold"><i class="fa-brands fa-whatsapp"></i> إرسال منظم (771826820)</button>
+<button type="button" onclick="submitRemitSMS()" class="w-full bg-slate-800 text-white py-2.5 rounded-xl text-xs">SMS</button>
+</form>
+</div>
+</div>
+
+<div id="pageDeveloper" class="page-section hidden space-y-6">
+<div class="text-center"><button onclick="showPage('pageHome')" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs">العودة</button></div>
+<div class="tv-screen p-6 md:p-10 min-h-[700px] flex flex-col items-center justify-center text-center space-y-6 relative">
+<div class="scanline"></div>
+<div class="absolute top-4 left-4 flex gap-2"><span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span><span class="text-[10px] text-red-400 font-bold">LIVE - بث مباشر - قناة المطور</span></div>
+<div class="absolute top-4 right-4 text-[10px] text-yellow-400 border border-yellow-400 px-2 py-1 rounded-full">NASR - 770210804</div>
+<img src="dev-logo.webp" onerror="this.src='store-logo.webp'" class="w-40 h-40 rounded-full border-4 border-yellow-400 shadow-[0_0_40px_rgba(250,204,21,.6)] mt-8 object-cover">
+<div class="space-y-4 max-w-2xl">
+<h1 class="text-3xl md:text-5xl font-black text-white">نصر أبوحسن</h1>
+<p class="text-yellow-400 font-bold text-sm tracking-widest">770210804 - ELITE DEVELOPER</p>
+<div class="bg-black/60 border border-yellow-400/20 rounded-2xl p-5 text-right space-y-3 backdrop-blur">
+<p class="text-white text-sm leading-relaxed" id="line1"></p>
+<p class="text-emerald-300 text-sm" id="line2"></p>
+<p class="text-slate-300 text-xs" id="line3"></p>
+<p class="text-amber-300 text-sm font-bold border-t border-yellow-400/20 pt-3" id="line4"></p>
+<p class="text-slate-400 text-xs" id="line5"></p>
+</div>
+<div class="bg-yellow-400/10 border border-yellow-400/30 rounded-xl p-3"><p class="text-[11px] text-yellow-200">تم تطوير هذا الموقع في العام 2025 وإخراجه للعالم الرقمي عام 2026</p></div>
+<div class="sig" id="signature"></div>
+<img src="dev-logo.webp" class="w-64 mx-auto mt-2 opacity-90 rounded-full border-2 border-yellow-400/50">
+</div>
+<div class="flex gap-3 mt-4"><a href="tel:770210804" class="bg-yellow-400 text-slate-900 px-5 py-2.5 rounded-full text-xs font-black"><i class="fa-solid fa-phone ml-1"></i> 770210804</a><a href="https://wa.me/967770210804" class="bg-emerald-600 text-white px-5 py-2.5 rounded-full text-xs font-black"><i class="fa-brands fa-whatsapp ml-1"></i> واتساب</a></div>
+</div>
+</div>
+
+<div id="pageAdmin" class="page-section hidden space-y-4">
+<div class="bg-slate-900 text-white p-5 rounded-2xl flex justify-between border border-yellow-400/20"><div><h2 class="font-black text-yellow-400">غرفة التحكم V4 - مع الشعارات والتوقيع الأصلي</h2><p class="text-[11px] text-slate-400">إعلانات فيديو/صورة - حظر مؤقت - شعارات - شات - دفع 782939973</p></div><button onclick="showPage('pageHome')" class="bg-red-600 px-3 py-1 rounded-xl text-xs">خروج</button></div>
+<div class="flex gap-2 overflow-x-auto pb-2">
+<button onclick="switchTab('tabAds')" class="admin-btn bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">إدارة الإعلانات 🎬</button>
+<button onclick="switchTab('tabAdd')" class="admin-btn bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">إضافة سلع</button>
+<button onclick="switchTab('tabChat')" class="admin-btn bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">الشات 💬</button>
+<button onclick="switchTab('tabPerm')" class="admin-btn bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">حظر وصلاحيات ⛔</button>
+<button onclick="switchTab('tabRemit')" class="admin-btn bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">الحوالات</button>
+<button onclick="switchTab('tabReserve')" class="admin-btn bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">حجوزات ودفع</button>
+<button onclick="switchTab('tabLogo')" class="admin-btn bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">الشعارات</button>
+<button onclick="switchTab('tabAcc')" class="admin-btn bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">التقارير</button>
+<button onclick="switchTab('tabSet')" class="admin-btn bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap">الإعدادات</button>
+</div>
+
+<div id="tabAds" class="admin-tab bg-white p-5 rounded-2xl shadow space-y-4">
+<h3 class="font-black text-sm border-b pb-2">🎬 إدارة شاشات العرض - إضافة فيديو أو صورة أو حذف إعلان</h3>
+<div class="grid md:grid-cols-2 gap-4">
+<div class="border p-4 rounded-2xl bg-slate-50 space-y-2">
+<label class="text-xs font-bold">نوع الإعلان</label>
+<select id="adType" class="w-full p-2.5 border rounded-xl text-xs"><option value="image">صورة</option><option value="video">فيديو يوتيوب أو ملف</option></select>
+<label class="text-xs font-bold mt-1 block">القسم</label>
+<select id="adSection" class="w-full p-2.5 border rounded-xl text-xs"><option value="home">الرئيسية</option><option value="food">غذائية</option><option value="fuel">نفطية</option><option value="remittance">حوالات</option></select>
+<input type="file" id="adFile" accept="image/*,video/*" class="w-full text-xs p-2 border rounded-xl bg-white">
+<input type="text" id="adLink" placeholder="أو رابط صورة/فيديو يوتيوب https://..." class="w-full p-2.5 border rounded-xl text-xs">
+<input type="text" id="adTitle" placeholder="عنوان الإعلان" class="w-full p-2.5 border rounded-xl text-xs">
+<button onclick="addAd()" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-bold">+ إضافة إعلان</button>
+</div>
+<div class="border p-4 rounded-2xl bg-white"><h4 class="text-xs font-bold mb-2">الإعلانات الحالية (اضغط X لحذف)</h4><div id="adsList" class="space-y-2 max-h-80 overflow-y-auto"></div></div>
+</div>
+</div>
+
+<div id="tabAdd" class="admin-tab hidden bg-white p-5 rounded-2xl shadow space-y-3"><div class="grid grid-cols-3 gap-2"><button onclick="openAdd('food')" class="p-3 bg-emerald-50 rounded-xl text-xs font-bold border">غذائية (دقيق)</button><button onclick="openAdd('fuel')" class="p-3 bg-amber-50 rounded-xl text-xs font-bold border">نفطية</button><button onclick="openAdd('oils')" class="p-3 bg-orange-50 rounded-xl text-xs font-bold border">زيوت</button><button onclick="openAdd('pesticides')" class="p-3 bg-teal-50 rounded-xl text-xs font-bold border">مبيدات</button><button onclick="openAdd('accessories')" class="p-3 bg-purple-50 rounded-xl text-xs font-bold border">إكسسوارات</button><button onclick="openAdd('services')" class="p-3 bg-blue-50 rounded-xl text-xs font-bold border">خدمات</button></div><div id="adminProdList" class="mt-3 space-y-1 max-h-60 overflow-y-auto"></div></div>
+
+<div id="tabPerm" class="admin-tab hidden bg-white p-5 rounded-2xl shadow space-y-4">
+<h3 class="font-black text-sm border-b pb-2">⛔ صلاحيات المدير - حظر الزبون وقت محدد وصلاحيات كثيرة</h3>
+<div class="grid md:grid-cols-2 gap-4">
+<div class="border p-4 rounded-2xl bg-red-50 space-y-2">
+<h4 class="font-bold text-xs text-red-700">حظر زبون</h4>
+<select id="banCustomerSelect" class="w-full p-2.5 border rounded-xl text-xs bg-white"></select>
+<select id="banDuration" class="w-full p-2.5 border rounded-xl text-xs bg-white"><option value="1">ساعة واحدة</option><option value="24">24 ساعة</option><option value="168">7 أيام</option><option value="720">30 يوم</option><option value="99999">دائم</option></select>
+<input id="banReason" placeholder="سبب الحظر" class="w-full p-2.5 border rounded-xl text-xs">
+<button onclick="banCustomer()" class="w-full bg-red-600 text-white py-2 rounded-xl text-xs font-bold">تأكيد الحظر</button>
+</div>
+<div class="border p-4 rounded-2xl bg-slate-50 space-y-2">
+<h4 class="font-bold text-xs">صلاحيات أخرى</h4>
+<label class="flex items-center gap-2 text-xs"><input type="checkbox" id="permChat" checked> تفعيل الشات</label>
+<label class="flex items-center gap-2 text-xs"><input type="checkbox" id="permRemit" checked> تفعيل الحوالات</label>
+<label class="flex items-center gap-2 text-xs"><input type="checkbox" id="permPay" checked> تفعيل الدفع 782939973</label>
+<label class="flex items-center gap-2 text-xs"><input type="checkbox" id="permAds" checked> تفعيل الإعلانات</label>
+<div class="pt-2 border-t"><p class="text-[11px] font-bold">تغيير رمز المدير:</p><input id="newAdminPass" placeholder="رمز جديد" class="w-full p-2 border rounded-xl text-xs mt-1"><button onclick="changePass()" class="w-full bg-slate-800 text-white py-1.5 rounded-xl text-xs mt-1">حفظ</button></div>
+</div>
+</div>
+<div class="border p-3 rounded-2xl bg-white"><h4 class="text-xs font-bold">المحظورون حالياً</h4><div id="bannedList" class="space-y-1 mt-2 max-h-40 overflow-y-auto text-xs"></div></div>
+</div>
+
+<div id="tabChat" class="admin-tab hidden bg-white rounded-2xl shadow overflow-hidden"><div class="p-3 bg-slate-900 text-white text-xs font-bold flex justify-between"><span><i class="fa-solid fa-comments ml-1"></i> شات الزبائن المباشر</span><span id="onlineCust">0</span></div><div class="grid md:grid-cols-3 h-[400px]"><div id="chatCustomersList" class="border-l bg-slate-50 p-2 overflow-y-auto"></div><div class="md:col-span-2 flex flex-col"><div id="adminChatBox" class="flex-1 overflow-y-auto p-3 space-y-2 bg-[#e5ddd5]"></div><div class="p-2 border-t flex gap-2 bg-white"><input id="adminChatInput" placeholder="اكتب رد..." class="flex-1 p-2.5 border rounded-full text-sm"><button onclick="sendAdminChat()" class="bg-emerald-600 text-white w-10 h-10 rounded-full"><i class="fa-solid fa-paper-plane"></i></button></div></div></div></div>
+<div id="tabRemit" class="admin-tab hidden bg-white p-5 rounded-2xl shadow"><div id="adminRemitList" class="space-y-2"></div></div>
+<div id="tabReserve" class="admin-tab hidden bg-white p-5 rounded-2xl shadow"><div id="adminReserveList" class="space-y-2"></div></div>
+<div id="tabLogo" class="admin-tab hidden bg-white p-5 rounded-2xl shadow space-y-3">
+<h3 class="font-bold text-sm">الشعارات - النهائية</h3>
+<div class="grid md:grid-cols-2 gap-4">
+<div class="border p-3 rounded-xl text-center"><img src="store-logo.webp" class="w-32 h-32 mx-auto rounded-full border-4 border-yellow-400 object-cover"><p class="text-xs font-bold mt-2">شعار المحل - كيس دقيق</p><p class="text-[10px]">محلات أنور أبو حسن - 771826820 - دقيق + وقود + حوالة</p></div>
+<div class="border p-3 rounded-xl text-center"><img src="dev-logo.webp" class="w-32 h-32 mx-auto rounded-full border-4 border-yellow-400 object-cover"><p class="text-xs font-bold mt-2">شعار المطور - بتوقيعك الأصلي + 770210804</p></div>
+</div>
+</div>
+<div id="tabAcc" class="admin-tab hidden bg-white p-5 rounded-2xl shadow space-y-3"><div class="grid grid-cols-3 gap-2 text-center"><div class="bg-emerald-50 p-3 rounded-xl"><span id="sSales" class="font-black text-lg">0</span><span class="block text-[10px]">مبيعات</span></div><div class="bg-blue-50 p-3 rounded-xl"><span id="sRemit" class="font-black text-lg">0</span><span class="block text-[10px]">حوالات</span></div><div class="bg-purple-50 p-3 rounded-xl"><span id="sCust" class="font-black text-lg">0</span><span class="block text-[10px]">زبائن</span></div></div><div class="grid grid-cols-2 gap-2"><button onclick="downloadSalesPDF()" class="bg-emerald-700 text-white py-2 rounded-xl text-xs">PDF مبيعات</button><button onclick="downloadRemitPDF()" class="bg-blue-700 text-white py-2 rounded-xl text-xs">PDF حوالات</button></div></div>
+<div id="tabSet" class="admin-tab hidden bg-white p-5 rounded-2xl shadow space-y-3"><div class="flex gap-2"><input id="noticeInput" placeholder="إشعار عام..." class="flex-1 p-2 border rounded-xl text-xs"><button onclick="postNotice()" class="bg-amber-500 px-4 rounded-xl text-xs font-bold">نشر</button></div><div id="custList" class="mt-2 space-y-1 max-h-40 overflow-y-auto text-xs"></div></div>
+</div>
+</main>
+
+<div id="chatModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] hidden flex items-end md:items-center justify-center p-0 md:p-4">
+<div class="bg-[#ece5dd] w-full md:max-w-md h-[85vh] md:h-[600px] rounded-t-[1.8rem] md:rounded-[1.8rem] shadow-2xl flex flex-col overflow-hidden">
+<div class="bg-emerald-800 text-white p-4 flex justify-between items-center"><div class="flex items-center gap-3"><img src="store-logo.webp" class="w-10 h-10 rounded-full border-2 border-yellow-400 object-cover"><div><p class="font-bold text-sm">محلات أنور أبوحسن</p><p class="text-[10px] text-emerald-200">متصل - 782939973</p></div></div><button onclick="closeChat()" class="w-8 h-8 bg-white/20 rounded-full"><i class="fa-solid fa-xmark text-sm"></i></button></div>
+<div id="chatMessages" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+<div class="bg-white p-3 flex gap-2 items-center"><input id="chatInput" placeholder="اكتب رسالتك..." class="flex-1 p-3 border rounded-full text-sm outline-none"><input type="file" id="chatImage" accept="image/*" class="hidden" onchange="sendImage(event)"><label for="chatImage" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center cursor-pointer"><i class="fa-solid fa-image text-sm"></i></label><button onclick="sendChat()" class="bg-emerald-600 text-white w-12 h-12 rounded-full"><i class="fa-solid fa-paper-plane"></i></button></div>
+<div class="bg-white px-3 pb-2 text-[10px] text-center text-slate-500">الدفع على 782939973 - الاستلام من المحل فقط</div>
+</div>
+</div>
+
+<div id="addModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4"><div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-3"><h3 class="font-black text-sm">إضافة منتج</h3><form onsubmit="saveItem(event)" class="space-y-2"><input type="hidden" id="catTarget"><input type="file" id="imgInput" accept="image/*" class="w-full text-xs p-2 border rounded-xl bg-slate-50"><input id="nameInput" required placeholder="اسم السلعة - دقيق" class="w-full p-3 border rounded-xl text-xs"><div class="grid grid-cols-2 gap-2"><input id="priceInput" required placeholder="السعر" class="w-full p-3 border rounded-xl text-xs"><input id="stockInput" type="number" value="10" class="w-full p-3 border rounded-xl text-xs"></div><div class="flex gap-2"><button class="flex-1 bg-emerald-600 text-white py-3 rounded-xl text-xs font-bold">حفظ</button><button type="button" onclick="closeAdd()" class="w-1/3 bg-slate-200 py-3 rounded-xl text-xs">إلغاء</button></div></form></div></div>
+
+<div id="payModal" class="fixed inset-0 bg-black/70 z-[70] hidden flex items-center justify-center p-4"><div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center space-y-4"><div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl"><i class="fa-solid fa-mobile-screen"></i></div><h3 id="payTitle" class="font-black">الدفع عبر جيب</h3><p class="text-xs">حول إلى <span class="font-black text-emerald-600">782939973</span> عبر <span id="payWalletName"></span></p><div id="payQR" class="flex justify-center bg-slate-50 p-3 rounded-xl"></div><div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-right"><p>1. افتح تطبيق <span id="payWalletName2">جيب</span></p><p>2. حول إلى 782939973</p><p>3. صور الإشعار وارسله في الشات</p><p>4. تعال للمحل واستلم بكود QR</p></div><div class="grid grid-cols-2 gap-2"><button onclick="openChat(); document.getElementById('payModal').classList.add('hidden')" class="bg-emerald-600 text-white py-2.5 rounded-xl text-xs font-bold">فتح الشات</button><button onclick="document.getElementById('payModal').classList.add('hidden')" class="w-full bg-slate-200 py-2.5 rounded-xl text-xs">إغلاق</button></div></div></div>
+
+<div id="reserveModal" class="fixed inset-0 bg-black/70 z-[70] hidden flex items-center justify-center p-4"><div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center space-y-3"><div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-2xl"><i class="fa-solid fa-ticket"></i></div><h3 class="font-black">تم الحجز - استلام من المحل</h3><p class="text-xs">كود: <span id="rCode" class="font-black text-emerald-600"></span></p><div id="rQR" class="flex justify-center bg-slate-50 p-2 rounded-xl"></div><p class="text-[11px] bg-red-50 border border-red-200 p-2 rounded-xl text-red-700 font-bold">الاستلام من المحل فقط - لا يوجد توصيل - ادفع عبر 782939973 إذا تريد</p><button onclick="document.getElementById('reserveModal').classList.add('hidden')" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-xs">تمام</button></div></div>
+
+<div id="receiptModal" class="fixed inset-0 bg-black/70 z-[70] hidden flex items-center justify-center p-4"><div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center space-y-3"><div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-2xl"><i class="fa-solid fa-check"></i></div><h3 class="font-black">تم تسديد الحوالة</h3><div class="bg-slate-50 p-3 rounded-xl text-xs text-right space-y-1"><p>المستلم: <span id="recName"></span></p><p>رقم الحوالة: <span id="recNo"></span></p><p>المبلغ: <span id="recAmount" class="font-black text-emerald-600"></span> <span id="recCurr"></span></p><div id="recQR" class="flex justify-center bg-white p-2 rounded-xl mt-2"></div></div><button onclick="document.getElementById('receiptModal').classList.add('hidden')" class="w-full bg-emerald-600 text-white py-2.5 rounded-xl text-xs">إغلاق</button></div></div>
+
+<div id="replyModal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center p-4"><div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-3"><h3 class="font-black text-sm">الرد على الحوالة</h3><form onsubmit="replyRemit(event)" class="space-y-2"><input type="hidden" id="replyId"><input id="replyAmount" required type="number" placeholder="المبلغ" class="w-full p-3 border rounded-xl text-xs"><select id="replyCurr" class="w-full p-3 border rounded-xl text-xs"><option>ريال يمني</option><option>ريال سعودي</option><option>دولار أمريكي</option></select><div class="flex gap-2"><button class="flex-1 bg-emerald-600 text-white py-3 rounded-xl text-xs">إرسال + QR</button><button type="button" onclick="document.getElementById('replyModal').classList.add('hidden')" class="w-1/3 bg-slate-200 py-3 rounded-xl text-xs">إلغاء</button></div></form></div></div>
+
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur border-t py-2.5 px-4 z-40"><div class="container mx-auto max-w-6xl flex justify-between"><div class="flex gap-1"><button onclick="showPage('pageHome')" class="bg-emerald-700 text-white px-4 py-2.5 rounded-2xl text-xs font-bold">الرئيسية</button><button onclick="showPage('pageFood')" class="bg-white border px-3 py-2.5 rounded-2xl text-xs font-bold">غذائية</button><button onclick="openChat()" class="bg-yellow-400 text-slate-900 px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-comments"></i> شات</button><button onclick="showPage('pageDeveloper')" class="bg-slate-900 text-yellow-400 px-3 py-2.5 rounded-2xl text-xs font-bold"><i class="fa-solid fa-code"></i></button></div><div class="text-[10px] bg-slate-900 text-white px-3 py-2 rounded-full">بدون توصيل - 782939973</div></div></nav>
+
+<script>
+// FULL LOGIC - SAME AS V4 BUT WITH FINAL FEATURES
+let DB = JSON.parse(localStorage.getItem('anwarV4Final') || '{"items":[],"remits":[],"sales":[],"reservations":[],"customers":[],"chats":[],"ads":[],"banned":[],"notice":"","adminPass":"1234"}');
+let current = JSON.parse(localStorage.getItem('curV4Final') || 'null');
+let adminClick=0, bannerIdx=0, currentChatCustomer=null;
+if(DB.ads.length===0){DB.ads=[{id:1, section:'home', type:'image', title:'أفضل الأسعار والخدمات المباشرة - دقيق', src:'', color:'from-emerald-600 to-teal-800'}, {id:2, section:'home', type:'image', title:'مشتقات نفطية بجودة عالية', src:'', color:'from-amber-600 to-orange-700'}, {id:3, section:'home', type:'image', title:'حوالات مالية لحظية - دفع 782939973', src:'', color:'from-blue-700 to-indigo-800'}];}
+window.onload=()=>{
+ if(!current){document.getElementById('loginModal').classList.remove('hidden');} else {document.getElementById('loginModal').classList.add('hidden'); document.getElementById('displayName').innerText=current.name;}
+ if(current && isBanned(current.phone)){alert('أنت محظور حتى '+getBanEnd(current.phone)); localStorage.clear(); location.reload();}
+ if(DB.items.length===0){DB.items=[{id:1,cat:'food',name:'دقيق السنابل 50 كجم',price:'32000 ريال',stock:20,img:'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'}]; save();}
+ renderAll(); renderAds(); startBanner(); setInterval(()=>{let el=document.getElementById('liveTime'); if(el) el.innerText=new Date().toLocaleTimeString('ar-YE');},1000);
+ if(DB.notice){document.getElementById('noticeText').innerText=DB.notice; document.getElementById('noticeBar').classList.remove('hidden');}
+};
+function handleLogin(e){e.preventDefault(); let name=document.getElementById('custName').value.trim(); let phone=document.getElementById('custPhone').value.trim(); if(isBanned(phone)){return alert('رقمك محظور حتى '+getBanEnd(phone));} let id=Date.now().toString(); current={name,phone,id}; localStorage.setItem('curV4Final',JSON.stringify(current)); if(!DB.customers.find(c=>c.phone===phone)) DB.customers.push(current); save(); document.getElementById('displayName').innerText=name; document.getElementById('loginModal').classList.add('hidden');}
+function showPage(id){document.querySelectorAll('.page-section').forEach(p=>p.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); window.scrollTo({top:0,behavior:'smooth'}); if(id==='pageDeveloper'){playDevAnimation();}}
+function triggerAdmin(){adminClick++; if(adminClick>=5){adminClick=0; let p=prompt('رمز المدير:'); if(p===DB.adminPass) showPage('pageAdmin'); else if(p!==null) alert('رمز خاطئ');}}
+function switchTab(id){document.querySelectorAll('.admin-tab').forEach(t=>t.classList.add('hidden')); document.getElementById(id).classList.remove('hidden');}
+function openAdd(cat){document.getElementById('catTarget').value=cat; document.getElementById('addModal').classList.remove('hidden');}
+function closeAdd(){document.getElementById('addModal').classList.add('hidden');}
+function saveItem(e){e.preventDefault(); let cat=document.getElementById('catTarget').value; let name=document.getElementById('nameInput').value; let price=document.getElementById('priceInput').value; let stock=parseInt(document.getElementById('stockInput').value)||10; let file=document.getElementById('imgInput').files[0]; let item={id:Date.now(),cat,name,price,stock,img:'https://cdn-icons-png.flaticon.com/512/3081/3081559.png'}; let done=()=>{DB.items.push(item); save(); renderAll(); closeAdd();}; if(file){let r=new FileReader(); r.onload=ev=>{item.img=ev.target.result; done();}; r.readAsDataURL(file);} else done();}
+function renderAll(){
+ let maps={food:'gridFood',fuel:'gridFuelMain',oils:'gridOils',pesticides:'gridPesticides',accessories:'gridAccessories',services:'gridOtherServices'};
+ Object.values(maps).forEach(id=>{let el=document.getElementById(id); if(el) el.innerHTML='';});
+ DB.items.forEach(it=>{
+  let card=document.createElement('div'); card.className="bg-white p-3 rounded-2xl shadow border text-center space-y-2 flex flex-col";
+  card.innerHTML=`<img src="${it.img}" class="w-full h-28 object-cover rounded-xl"><h4 class="font-bold text-xs min-h-[30px]">${it.name}</h4><span class="text-xs font-black text-emerald-600 bg-emerald-50 py-1 rounded-lg">${it.price}</span><span class="text-[10px] text-slate-500">${it.stock} متوفر - استلام من المحل</span><button onclick="reserve('${it.name}','${it.price}')" class="w-full bg-emerald-600 text-white py-2 rounded-xl text-xs font-bold">حجز - استلام من المحل</button><button onclick="payWallet('جيب','${it.price}')" class="w-full bg-slate-900 text-white py-1.5 rounded-xl text-[11px]"><i class="fa-solid fa-wallet ml-1"></i> دفع 782939973</button>`;
+  let target=maps[it.cat]; if(target && document.getElementById(target)) document.getElementById(target).appendChild(card);
+ });
+ let feat=document.getElementById('featuredGrid'); if(feat){feat.innerHTML=''; DB.items.slice(-4).reverse().forEach(it=>{let d=document.createElement('div'); d.className="bg-slate-50 p-2 rounded-xl flex gap-2 items-center"; d.innerHTML=`<img src="${it.img}" class="w-10 h-10 rounded-lg"><div><p class="text-[11px] font-bold">${it.name}</p><p class="text-[10px] text-emerald-600">${it.price}</p></div>`; feat.appendChild(d);});}
+ renderRemit(); renderReserve(); renderAdminProd(); renderChats(); updateStats(); renderBanned(); renderCustomerSelect(); renderAdsList();
+}
+function addAd(){
+ let type=document.getElementById('adType').value;
+ let section=document.getElementById('adSection').value;
+ let file=document.getElementById('adFile').files[0];
+ let link=document.getElementById('adLink').value.trim();
+ let title=document.getElementById('adTitle').value.trim() || 'إعلان جديد';
+ let ad={id:Date.now(), section, type, title, src:'', color:'from-emerald-600 to-teal-800'};
+ let done=()=>{DB.ads.push(ad); save(); renderAds(); renderAdsList(); document.getElementById('adLink').value=''; document.getElementById('adTitle').value=''; alert('تمت إضافة الإعلان');};
+ if(file){let r=new FileReader(); r.onload=ev=>{ad.src=ev.target.result; done();}; r.readAsDataURL(file);} else if(link){ad.src=link; done();} else {done();}
+}
+function renderAds(){
+ let container=document.getElementById('homeBannerContainer'); if(!container) return; container.innerHTML='';
+ let homeAds=DB.ads.filter(a=>a.section==='home');
+ if(homeAds.length===0) homeAds=[{id:0, title:'أفضل الأسعار', color:'from-emerald-600 to-teal-800', type:'image', src:''}];
+ homeAds.forEach((ad,i)=>{
+  let slide=document.createElement('div'); slide.className=`banner-slide absolute inset-0 w-full h-full flex items-center justify-center text-white p-6 text-center bg-gradient-to-br ${ad.color}`; slide.style.display=i===0?'flex':'none';
+  if(ad.type==='video' && ad.src){
+   if(ad.src.includes('youtube') || ad.src.includes('youtu.be')){
+    let vidId=ad.src.split('v=')[1] || ad.src.split('/').pop().split('&')[0]; slide.innerHTML=`<iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/${vidId}?autoplay=0&mute=1" frameborder="0"></iframe><div class="relative z-10 bg-black/60 p-3 rounded-xl"><p class="font-black">${ad.title}</p></div>`;
+   } else {
+    slide.innerHTML=`<video class="absolute inset-0 w-full h-full object-cover" src="${ad.src}" controls muted loop></video><div class="relative z-10 bg-black/60 p-3 rounded-xl"><p class="font-black">${ad.title}</p></div>`;
+   }
+  } else if(ad.type==='image' && ad.src){
+   slide.innerHTML=`<img src="${ad.src}" class="absolute inset-0 w-full h-full object-cover"><div class="absolute inset-0 bg-black/40"></div><div class="relative z-10"><h2 class="text-3xl font-black">${ad.title}</h2></div>`;
+  } else {
+   slide.innerHTML=`<div class="relative"><span class="bg-yellow-400 text-slate-900 text-[10px] font-black px-3 py-1 rounded-full">V4 النهائي - مع الشعارات</span><h2 class="text-3xl font-black mt-2">${ad.title}</h2><p class="text-xs mt-2">دقيق - بترول - حوالات - دفع 782939973 - بدون توصيل</p></div>`;
+  }
+  container.appendChild(slide);
+ });
+ let dots=document.getElementById('bannerDots'); dots.innerHTML=''; homeAds.forEach((_,i)=>{let d=document.createElement('div'); d.className='w-2 h-2 rounded-full bg-white/50 cursor-pointer '+(i===0?'!bg-yellow-400 !w-6':''); d.onclick=()=>{bannerIdx=i; showSlide();}; dots.appendChild(d);});
+}
+function renderAdsList(){let list=document.getElementById('adsList'); if(!list) return; list.innerHTML=''; DB.ads.forEach(ad=>{let div=document.createElement('div'); div.className="p-2 border rounded-xl flex gap-2 items-center bg-slate-50"; div.innerHTML=`<div class="w-12 h-12 bg-slate-200 rounded-lg flex items-center justify-center text-[10px]">${ad.type==='video'?'🎬':'🖼️'}</div><div class="flex-1"><p class="text-xs font-bold">${ad.title}</p><p class="text-[10px] text-slate-500">${ad.section} - ${ad.type}</p></div><button onclick="deleteAd(${ad.id})" class="bg-red-600 text-white w-8 h-8 rounded-full text-xs">X</button>`; list.appendChild(div);});}
+function deleteAd(id){if(confirm('حذف الإعلان؟')){DB.ads=DB.ads.filter(a=>a.id!==id); save(); renderAds(); renderAdsList();}}
+function startBanner(){renderAdsList(); setInterval(()=>{bannerIdx=(bannerIdx+1)%(DB.ads.filter(a=>a.section==='home').length||1); showSlide();},4000);}
+function showSlide(){let slides=document.querySelectorAll('.banner-slide'); slides.forEach((s,i)=>{s.style.display=i===bannerIdx?'flex':'none';}); let dots=document.getElementById('bannerDots').children; for(let i=0;i<dots.length;i++){dots[i].className='w-2 h-2 rounded-full bg-white/50 cursor-pointer '+(i===bannerIdx?'!bg-yellow-400 !w-6':'');}}
+
+function reserve(name,price){if(!current) return alert('سجل دخول'); let code='ANW-'+Math.random().toString(36).substr(2,6).toUpperCase(); let r={id:Date.now(),code,customer:current.name,phone:current.phone,item:name,price,date:new Date().toLocaleString('ar-YE')}; DB.reservations.push(r); DB.sales.push({customer:current.name,item:name,price,date:r.date}); save(); document.getElementById('rCode').innerText=code; document.getElementById('rQR').innerHTML=''; new QRCode(document.getElementById('rQR'),{text:code,width:100,height:100}); document.getElementById('reserveModal').classList.remove('hidden'); renderAll();}
+function payWallet(wallet){document.getElementById('payWalletName').innerText=wallet; let el2=document.getElementById('payWalletName2'); if(el2) el2.innerText=wallet; document.getElementById('payTitle').innerText='الدفع عبر '+wallet; document.getElementById('payQR').innerHTML=''; new QRCode(document.getElementById('payQR'),{text:'782939973-'+wallet,width:120,height:120}); document.getElementById('payModal').classList.remove('hidden');}
+
+function openChat(){document.getElementById('chatModal').classList.remove('hidden'); renderChatMessages();}
+function closeChat(){document.getElementById('chatModal').classList.add('hidden');}
+function sendChat(){let inp=document.getElementById('chatInput'); let txt=inp.value.trim(); if(!txt) return; let msg={id:Date.now(), customerId:current.id, customerName:current.name, phone:current.phone, text:txt, from:'customer', time:new Date().toLocaleTimeString('ar-YE'), image:''}; DB.chats.push(msg); save(); inp.value=''; renderChatMessages(); renderChats(); setTimeout(()=>{let reply={id:Date.now()+1, customerId:current.id, customerName:current.name, text:'تم استلام رسالتك، سيرد المدير قريبا. ادفع على 782939973 وارسل الإشعار هنا. الاستلام من المحل فقط.', from:'admin', time:new Date().toLocaleTimeString('ar-YE')}; DB.chats.push(reply); save(); renderChatMessages(); renderChats();},1000);}
+function sendImage(e){let file=e.target.files[0]; if(!file) return; let r=new FileReader(); r.onload=ev=>{let msg={id:Date.now(), customerId:current.id, customerName:current.name, phone:current.phone, text:'[صورة إشعار دفع]', from:'customer', time:new Date().toLocaleTimeString('ar-YE'), image:ev.target.result}; DB.chats.push(msg); save(); renderChatMessages(); renderChats();}; r.readAsDataURL(file);}
+function renderChatMessages(){let box=document.getElementById('chatMessages'); if(!box) return; box.innerHTML=''; DB.chats.filter(c=>c.customerId===current.id).forEach(m=>{let div=document.createElement('div'); div.className='flex '+(m.from==='customer'?'justify-end':'justify-start'); div.innerHTML=`<div class="chat-bubble ${m.from==='customer'?'chat-customer':'chat-admin'}"><p>${m.text}</p>${m.image?`<img src="${m.image}" class="w-32 h-32 rounded-xl mt-1">`:''}<span class="text-[9px] text-slate-500">${m.time}</span></div>`; box.appendChild(div);}); box.scrollTop=box.scrollHeight;}
+function renderChats(){let list=document.getElementById('chatCustomersList'); if(!list) return; list.innerHTML=''; let uniq={}; DB.chats.forEach(c=>{uniq[c.customerId]=c.customerName;}); Object.keys(uniq).forEach(cid=>{let last=DB.chats.filter(c=>c.customerId===cid).slice(-1)[0]; let d=document.createElement('div'); d.className='p-2 bg-white rounded-xl border mb-1 cursor-pointer'; d.onclick=()=>{currentChatCustomer=cid; renderAdminChat();}; d.innerHTML=`<p class="font-bold text-xs">${uniq[cid]}</p><p class="text-[10px] text-slate-500">${last?last.text:''}</p>`; list.appendChild(d);}); let online=document.getElementById('onlineCust'); if(online) online.innerText=Object.keys(uniq).length+' زبون'; renderAdminChat(); let badge=document.getElementById('chatBadge'); if(badge){let total=DB.chats.filter(c=>c.from==='customer').length; badge.innerText=total; badge.classList.toggle('hidden', total===0);}}
+function renderAdminChat(){let box=document.getElementById('adminChatBox'); if(!box || !currentChatCustomer) return; box.innerHTML=''; DB.chats.filter(c=>c.customerId===currentChatCustomer).forEach(m=>{let div=document.createElement('div'); div.className='flex '+(m.from==='admin'?'justify-end':'justify-start'); div.innerHTML=`<div class="chat-bubble ${m.from==='admin'?'bg-yellow-100 border':'chat-customer'}"><p class="text-xs">${m.text}</p>${m.image?`<img src="${m.image}" class="w-32 rounded-xl mt-1">`:''}</div>`; box.appendChild(div);}); box.scrollTop=box.scrollHeight;}
+function sendAdminChat(){let inp=document.getElementById('adminChatInput'); let txt=inp.value.trim(); if(!txt || !currentChatCustomer) return; let cinfo=DB.chats.find(c=>c.customerId===currentChatCustomer); let msg={id:Date.now(), customerId:currentChatCustomer, customerName:cinfo?cinfo.customerName:'زبون', text:txt, from:'admin', time:new Date().toLocaleTimeString('ar-YE')}; DB.chats.push(msg); save(); inp.value=''; renderChats();}
+
+function submitRemit(e){
+ e.preventDefault(); let no=document.getElementById('remitNo').value.trim(); let name=document.getElementById('remitName').value.trim();
+ DB.remits.push({id:Date.now(), remitNo:no, name, answered:false}); save();
+ let msg = `┏━━━━━━━━━━━━━━━━━━┓%0A┃ 🏪 *محلات أنور أبوحسن* - نظام الحوالات الرسمي ┃%0A┗━━━━━━━━━━━━━━━━━━┛%0A%0A📋 *طلب استلام حوالة جديد*%0A━━━━━━━━━━━━━━━━━━%0A👤 *اسم المستلم:*%0A${encodeURIComponent(name)}%0A%0A🔢 *رقم الحوالة:*%0A${encodeURIComponent(no)}%0A%0A📱 *رقم الزبون:* ${encodeURIComponent(current?current.phone:'غير مسجل')}%0A%0A⏰ *التاريخ:* ${encodeURIComponent(new Date().toLocaleString('ar-YE'))}%0A%0A📎 *مرفقات:* صور البطاقة (أمامي + خلفي)%0A%0A✅ *الحالة:* بانتظار تأكيد الإدارة%0A📍 *الاستلام:* من المحل فقط - لا يوجد توصيل%0A━━━━━━━━━━━━━━━━━━%0Aنظام V4 النهائي - مع الشعارات والتوقيع`;
+ window.open(`https://wa.me/967771826820?text=${msg}`,'_blank');
+ renderRemit();
+}
+function submitRemitSMS(){let no=document.getElementById('remitNo').value; let name=document.getElementById('remitName').value; if(!no||!name) return alert('أدخل البيانات'); DB.remits.push({id:Date.now(), remitNo:no, name, answered:false}); save(); window.open(`sms:771826820?body=${encodeURIComponent('حوالة '+name+' رقم '+no)}`,'_self'); renderRemit();}
+function renderRemit(){let l=document.getElementById('adminRemitList'); if(!l) return; l.innerHTML=''; DB.remits.slice().reverse().forEach(r=>{let d=document.createElement('div'); d.className=`p-3 rounded-xl border flex justify-between ${r.answered?'bg-slate-50':'bg-emerald-50 border-emerald-200'}`; d.innerHTML=`<div><p class="font-bold text-xs">${r.name}</p><p class="text-xs">🔢 ${r.remitNo}</p></div>${!r.answered?`<button onclick="openReply(${r.id})" class="bg-emerald-600 text-white px-3 py-1 rounded-xl text-xs">رد</button>`:''}`; l.appendChild(d);});}
+function renderReserve(){let l=document.getElementById('adminReserveList'); if(!l) return; l.innerHTML=''; DB.reservations.slice().reverse().forEach(r=>{let d=document.createElement('div'); d.className='p-3 rounded-xl border bg-amber-50 flex justify-between'; d.innerHTML=`<div><p class="font-bold text-xs">${r.item} - ${r.code}</p><p class="text-[10px]">${r.customer} - ${r.phone}</p></div><span class="text-xs font-black">${r.price}</span>`; l.appendChild(d);});}
+function openReply(id){document.getElementById('replyId').value=id; document.getElementById('replyModal').classList.remove('hidden');}
+function replyRemit(e){e.preventDefault(); let id=parseInt(document.getElementById('replyId').value); let amt=document.getElementById('replyAmount').value; let curr=document.getElementById('replyCurr').value; let r=DB.remits.find(x=>x.id===id); if(r){r.answered=true; r.amount=amt; r.currency=curr; save(); document.getElementById('recName').innerText=r.name; document.getElementById('recNo').innerText=r.remitNo; document.getElementById('recAmount').innerText=amt; document.getElementById('recCurr').innerText=curr; document.getElementById('recQR').innerHTML=''; new QRCode(document.getElementById('recQR'),{text:r.remitNo+'-'+amt,width:100,height:100}); document.getElementById('replyModal').classList.add('hidden'); document.getElementById('receiptModal').classList.remove('hidden'); renderRemit();}}
+function renderAdminProd(){let l=document.getElementById('adminProdList'); if(!l) return; l.innerHTML=''; DB.items.slice().reverse().slice(0,20).forEach(i=>{let d=document.createElement('div'); d.className='flex justify-between p-2 border rounded-xl text-xs'; d.innerHTML=`<span>${i.name}</span><button onclick="delItem(${i.id})" class="text-red-500">حذف</button>`; l.appendChild(d);});}
+function delItem(id){if(confirm('حذف؟')){DB.items=DB.items.filter(x=>x.id!==id); save(); renderAll();}}
+function renderCustomerSelect(){let sel=document.getElementById('banCustomerSelect'); if(!sel) return; sel.innerHTML=''; DB.customers.forEach(c=>{let o=document.createElement('option'); o.value=c.phone; o.text=c.name+' - '+c.phone; sel.appendChild(o);});}
+function banCustomer(){let phone=document.getElementById('banCustomerSelect').value; let hours=parseInt(document.getElementById('banDuration').value); let reason=document.getElementById('banReason').value; let end=Date.now()+hours*3600*1000; DB.banned.push({phone, end, reason, date:new Date().toLocaleString('ar-YE')}); save(); renderBanned(); alert('تم حظر '+phone);}
+function isBanned(phone){let b=DB.banned.find(x=>x.phone===phone); if(!b) return false; if(Date.now()>b.end){DB.banned=DB.banned.filter(x=>x.phone!==phone); save(); return false;} return true;}
+function getBanEnd(phone){let b=DB.banned.find(x=>x.phone===phone); if(!b) return ''; return new Date(b.end).toLocaleString('ar-YE');}
+function renderBanned(){let l=document.getElementById('bannedList'); if(!l) return; l.innerHTML=''; DB.banned.forEach(b=>{let d=document.createElement('div'); d.className='p-2 border rounded-lg flex justify-between bg-red-50'; d.innerHTML=`<span>${b.phone} - ${b.reason} - حتى ${new Date(b.end).toLocaleString('ar-YE')}</span><button onclick="unban('${b.phone}')" class="text-emerald-600 font-bold">فك حظر</button>`; l.appendChild(d);});}
+function unban(phone){DB.banned=DB.banned.filter(x=>x.phone!==phone); save(); renderBanned();}
+function changePass(){let p=document.getElementById('newAdminPass').value; if(p){DB.adminPass=p; save(); alert('تم تغيير الرمز إلى '+p);}}
+function updateStats(){let el1=document.getElementById('sSales'); if(el1) el1.innerText=DB.sales.length; let el2=document.getElementById('sRemit'); if(el2) el2.innerText=DB.remits.filter(r=>r.answered).length; let el3=document.getElementById('sCust'); if(el3) el3.innerText=DB.customers.length; let cl=document.getElementById('custList'); if(cl){cl.innerHTML=''; DB.customers.forEach(c=>{let d=document.createElement('div'); d.className='p-2 border rounded-lg flex justify-between'; d.innerHTML=`<span>${c.name}</span><span>${c.phone}</span>`; cl.appendChild(d);});}}
+function postNotice(){let t=document.getElementById('noticeInput').value; DB.notice=t; save(); document.getElementById('noticeText').innerText=t; document.getElementById('noticeBar').classList.remove('hidden'); alert('تم');}
+function downloadSalesPDF(){let {jsPDF}=window.jspdf; let doc=new jsPDF(); doc.text('مبيعات - محلات انور - بدون توصيل',70,10); let rows=DB.sales.map(s=>[s.customer,s.item,s.price,s.date]); doc.autoTable({head:[['الزبون','السلعة','السعر','التاريخ']], body:rows}); doc.save('sales.pdf');}
+function downloadRemitPDF(){let {jsPDF}=window.jspdf; let doc=new jsPDF(); doc.text('حوالات - محلات انور',70,10); let rows=DB.remits.filter(r=>r.answered).map(r=>[r.name,r.remitNo,r.amount+' '+(r.currency||'')]); doc.autoTable({head:[['المستلم','رقم الحوالة','المبلغ']], body:rows}); doc.save('remit.pdf');}
+function save(){localStorage.setItem('anwarV4Final',JSON.stringify(DB));}
+function playDevAnimation(){
+ let lines=[
+  "الاسم: نصر أبوحسن",
+  "للتواصل: 770210804",
+  "تم تطوير هذا الموقع في العام 2025 وإخراجه للعالم الرقمي عام 2026",
+  "وقد تم هذا العمل بفضل الله سبحانه وتعالى",
+  "ونتوجه من هنا من الموقع الإلكتروني إلى الله سبحانه وتعالى بأن يحفظ سيدي وقائدي عبد الملك بدر الدين الحوثي حفظه الله",
+  "والسلام عليكم ورحمة الله وبركاته"
+ ];
+ let ids=['line1','line2','line3','line4','line5'];
+ ids.forEach(id=>{let el=document.getElementById(id); if(el) el.innerText='';});
+ document.getElementById('signature').innerText='';
+ let idx=0;
+ function typeLine(){
+  if(idx>=lines.length){ 
+   let sigText="✍️ نصر أبوحسن - 770210804 - Elite Developer - بتوقيعي الأصلي";
+   let sigEl=document.getElementById('signature');
+   let sIdx=0;
+   let sInt=setInterval(()=>{sigEl.innerText=sigText.slice(0,sIdx); sIdx++; if(sIdx>sigText.length) clearInterval(sInt);},40);
+   return;
+  }
+  let elId = idx<3 ? ids[idx] : (idx===3 ? 'line3' : (idx===4 ? 'line4' : 'line5'));
+  let el=document.getElementById(elId);
+  let text=lines[idx];
+  let charIdx=0;
+  el.innerText='';
+  let intv=setInterval(()=>{
+   el.innerText=text.slice(0,charIdx);
+   charIdx++;
+   if(charIdx>text.length){clearInterval(intv); idx++; setTimeout(typeLine, 400);}
+  }, 18);
+ }
+ typeLine();
+}
+</script>
 </body>
 </html>
